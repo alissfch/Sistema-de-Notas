@@ -1,0 +1,24 @@
+<div th:fragment="menuLateral" class="sidebar">
+    <div class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        <h2>JCM Sistema</h2>
+        <p>Gestión Académica</p>
+    </div>
+
+    <nav class="steps">
+        <a th:href="@{/inicio}" class="step">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+        </a>
+
+        <a th:href="@{/admin/reportes/accesos}" class="step">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Accesos</span>
+        </a>
+
+        <a th:href="@{/admin/reportes/registros}" class="step">
+            <i class="fas fa-users"></i>
+            <span>Matrículas</span>
+        </a>
+    </nav>
+</div>
