@@ -9,7 +9,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,6 +23,10 @@ public class Alumno {
     @Column(name = "id_alumno")
     private Integer idAlumno;
 
+    @OneToOne
+    @JoinColumn(name = "id_usuario") // Esta es la llave foránea en tu tabla Alumno
+    private Usuario usuario;
+
     @Column(name = "codigo_institucional", unique = true)
     private String codigo;
 
@@ -31,7 +37,7 @@ public class Alumno {
     private String apellidos;
 
     @Column(name = "fecha_nacimiento")
-    private LocalDate fechaNacimiento; 
+    private LocalDate fechaNacimiento;
 
     @Column(nullable = false)
     private String grado;
@@ -110,6 +116,14 @@ public class Alumno {
         this.estado = estado;
     }
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
     public List<Matricula> getMatriculas() {
         return matriculas;
     }
@@ -134,6 +148,11 @@ public class Alumno {
         this.asistencias = asistencias;
     }
 
-    public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
 }

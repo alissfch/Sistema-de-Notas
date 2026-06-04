@@ -10,9 +10,6 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
-    // Este método es crucial para el Login.
-    // Spring leerá el nombre "findByCorreo" y automáticamente creará la consulta SQL: 
-    // SELECT * FROM usuario WHERE correo = ?
     Optional<Usuario> findByCorreo(String correo);
     
 }

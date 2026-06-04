@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 public class Usuario {
 
 public enum RolUsuario {
-        ADMIN, DOCENTE, ALUMNO // <-- ¡Agregamos ALUMNO aquí!
+        ADMIN, DOCENTE, ALUMNO
     }
     
     @Id
@@ -33,7 +33,6 @@ public enum RolUsuario {
     @Column(nullable = false, unique = true)
     private String correo;
 
-    // Mapea la columna con 'ñ' en la BD, pero mantiene la variable segura en Java
     @Column(name = "contraseña", nullable = false)
     private String contrasena;
 
@@ -44,16 +43,17 @@ public enum RolUsuario {
     @Column(nullable = false)
     private boolean estado;
 
-    // Relaciones inversas opcionales (Uno a Uno) hacia las tablas hijas
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Administrador administrador;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Docente docente;
 
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private Alumno alumno;
+
     public Usuario() {}
 
-    // --- GETTERS Y SETTERS ---
     public Integer getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
 
@@ -80,4 +80,9 @@ public enum RolUsuario {
 
     public Docente getDocente() { return docente; }
     public void setDocente(Docente docente) { this.docente = docente; }
+
+    public Alumno getAlumno() { return alumno; }
+    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+
+
 }

@@ -1,18 +1,21 @@
 package com.integrador.SistemaDeNotas.modelo.entidades;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Docente")
 public class Docente {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_docente;
@@ -21,8 +24,11 @@ public class Docente {
     private String codigo;
 
     @OneToOne
-    @JoinColumn(name = "id_usuario") 
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
+
+    @OneToMany(mappedBy = "docente")
+    private List<Curso> cursosAsignados;
 
     private String especialidad;
     private boolean estado;
@@ -59,10 +65,23 @@ public class Docente {
         this.estado = estado;
     }
 
-    public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
-    
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public List<Curso> getCursosAsignados() {
+        return cursosAsignados;
+    }
+
+    public void setCursosAsignados(List<Curso> cursosAsignados) {
+        this.cursosAsignados = cursosAsignados;
+    }
+
     public Docente() {
 
-}
+    }
 }

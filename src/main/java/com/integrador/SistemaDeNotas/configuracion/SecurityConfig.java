@@ -17,7 +17,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/login").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/login", "/error").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/docente/**").hasRole("DOCENTE")
                 .requestMatchers("/alumno/**").hasRole("ALUMNO")
@@ -45,7 +45,7 @@ public class SecurityConfig {
             if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
                 response.sendRedirect("/admin/panel");
             } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_DOCENTE"))) {
-                response.sendRedirect("/docente/inicio");
+                response.sendRedirect("/docente/panel");
             } else {
                 response.sendRedirect("/alumno/mis-notas");
             }
@@ -56,4 +56,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

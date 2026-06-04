@@ -1,5 +1,7 @@
 package com.integrador.SistemaDeNotas.controlador;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,8 +13,6 @@ import com.integrador.SistemaDeNotas.servicio.UsuarioServicio;
 @Controller
 public class UsuarioControlador {
 
-    // Cambiamos el Repositorio y el PasswordEncoder por el Servicio que centraliza
-    // la lógica
     @Autowired
     private UsuarioServicio usuarioServicio;
 
@@ -25,6 +25,7 @@ public class UsuarioControlador {
             @RequestParam(required = false) String codigo,
             @RequestParam(required = false) String grado,
             @RequestParam(required = false) String seccion,
+            @RequestParam(value = "cursoIds", required = false) List<Integer> cursoIds,
             Model model) {
 
         String patronContrasena = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\\W_]).{8,}$";
@@ -41,7 +42,7 @@ public class UsuarioControlador {
 
         try {
             usuarioServicio.registrarNuevoUsuario(correo, contrasenaSinEncriptar, rol, nombre, apellido, codigo, grado,
-                    seccion);
+                    seccion, cursoIds);
             return "redirect:/admin/panel?exito";
 
         } catch (Exception e) {

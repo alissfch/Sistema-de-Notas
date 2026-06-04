@@ -20,8 +20,7 @@ public abstract class ValidadorNotas {
     protected abstract String mensajeError();
 
     public static ValidadorNotas obtenerCadenaDeValidacion() {
-        // Armamos el eslabón de la cadena de adentro hacia afuera.
-        // El último no tiene un "siguiente", por eso le pasamos 'null'.
+
         return new ValidadorMaximo(
                 new ValidadorMinimo(
                         new ValidadorExcelencia(null)

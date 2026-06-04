@@ -23,13 +23,13 @@ public class Curso {
     private Integer idCurso;
 
     @ManyToOne
-    @JoinColumn(name = "id_docente", nullable = false)
+    @JoinColumn(name = "id_docente")
     private Docente docente;
 
     @Column(name = "nombre_curso", nullable = false)
     private String nombreCurso;
 
-    @Column(columnDefinition = "TEXT") // Permite textos largos
+    @Column(columnDefinition = "TEXT") 
     private String descripcion;
 
     @Column(nullable = false)
@@ -41,7 +41,6 @@ public class Curso {
     @Column(nullable = false)
     private boolean estado;
 
-    // Relaciones reversas (Un curso agrupa todo esto)
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private List<Matricula> matriculas;
 
@@ -53,7 +52,6 @@ public class Curso {
 
     public Curso() {}
 
-    // --- GETTERS Y SETTERS ---
     public Integer getIdCurso() { return idCurso; }
     public void setIdCurso(Integer idCurso) { this.idCurso = idCurso; }
 
