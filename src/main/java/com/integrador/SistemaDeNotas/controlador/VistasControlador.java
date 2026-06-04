@@ -1,10 +1,17 @@
 package com.integrador.SistemaDeNotas.controlador;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import com.integrador.SistemaDeNotas.repositorio.CursoRepository;
 
 @Controller
 public class VistasControlador {
+
+    @Autowired
+    private CursoRepository cursoRepository;
 
     @GetMapping("/login")
     public String mostrarLogin() {
@@ -32,7 +39,8 @@ public class VistasControlador {
     }
 
     @GetMapping("/admin/crear-usuario")
-    public String mostrarFormularioCrearUsuario() {
+    public String mostrarFormularioCrearUsuario(Model model) {
+        model.addAttribute("todosLosCursos", cursoRepository.findAll());
         return "admin/formulario-crear"; 
     }
 }

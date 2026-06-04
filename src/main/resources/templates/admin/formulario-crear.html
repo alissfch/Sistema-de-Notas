@@ -7,22 +7,18 @@
     <title>Crear Usuario | I.E. José Carlos Mariátegui</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Playfair+Display:wght@600;700&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
     <style>
         body {
             font-family: "Jost", sans-serif;
             background-color: #f4f9f4;
-            /* Fondo verde muy claro */
         }
 
         h2 {
             font-family: "Playfair Display", serif;
             color: #1c4b27;
-            /* Verde institucional oscuro */
         }
 
         .card-custom {
@@ -86,13 +82,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" required
-                                    placeholder="Ej. Juan Carlos" />
+                                <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ej. Juan Carlos" />
                             </div>
                             <div class="col-md-6 mt-3 mt-md-0">
                                 <label for="apellido" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="apellido" name="apellido" required
-                                    placeholder="Ej. Pérez Silva" />
+                                <input type="text" class="form-control" id="apellido" name="apellido" required placeholder="Ej. Pérez Silva" />
                             </div>
                         </div>
 
@@ -100,8 +94,7 @@
                             <label for="correo" class="form-label">Correo Institucional</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input type="email" class="form-control" id="correo" name="correo" required
-                                    placeholder="usuario@jcm.edu.pe" />
+                                <input type="email" class="form-control" id="correo" name="correo" required placeholder="usuario@jcm.edu.pe" />
                             </div>
                             <div class="form-text">
                                 Obligatorio el uso del dominio @jcm.edu.pe
@@ -112,27 +105,23 @@
                             <label for="contrasenaSinEncriptar" class="form-label">Contraseña de Acceso</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control" id="contrasenaSinEncriptar"
-                                    name="contrasenaSinEncriptar" required placeholder="Cree una contraseña segura" />
+                                <input type="password" class="form-control" id="contrasenaSinEncriptar" name="contrasenaSinEncriptar" required placeholder="Cree una contraseña segura" />
                             </div>
                             <div class="form-text text-muted" style="font-size: 0.85rem">
-                                <i class="bi bi-shield-check text-success"></i> Requiere: Mín.
-                                8 caracteres, mayúscula, minúscula, número y símbolo.
+                                <i class="bi bi-shield-check text-success"></i> Requiere: Mín. 8 caracteres, mayúscula, minúscula, número y símbolo.
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <label for="rol" class="form-label">Rol del Usuario</label>
                             <select class="form-select" id="rol" name="rol" onchange="adaptarFormulario()" required>
-                                <option value="" selected disabled>
-                                    Seleccione el rol correspondiente...
-                                </option>
+                                <option value="" selected disabled>Seleccione el rol correspondiente...</option>
                                 <option value="ALUMNO">Alumno</option>
                                 <option value="DOCENTE">Docente</option>
                             </select>
                         </div>
 
-                        <div class="row mb-4 align-items-center" id="seccionAdicional" style="display: none; background-color: #f8fbf8; padding: 15px; border-radius: 8px; border: 1px solid #e9f2eb;">
+                        <div class="row mb-4 align-items-start" id="seccionAdicional" style="display: none; background-color: #f8fbf8; padding: 15px; border-radius: 8px; border: 1px solid #e9f2eb;">
                             
                             <div class="col-md-6 mb-3 mb-md-0">
                                 <label for="codigo" class="form-label" id="labelCodigo">Código Institucional / DNI</label>
@@ -164,6 +153,33 @@
                                 </div>
                             </div>
 
+                            <div class="col-12 mt-4" id="contenedorCursosDocente" style="display: none;">
+                                <hr style="border-color: #c9e0d0;">
+                                <h6 class="text-success mb-3 fw-bold"><i class="bi bi-book me-2"></i>Asignación de Cursos a Cargo</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="curso1" class="form-label text-muted small">Primer Curso</label>
+                                        <select class="form-select" id="curso1" name="cursoIds">
+                                            <option value="" selected disabled>-- Seleccione 1er curso --</option>
+                                            <option th:each="curso : ${todosLosCursos}" 
+                                                    th:value="${curso.idCurso}" 
+                                                    th:text="${curso.nombre} + ' - ' + ${curso.grado} + ' ' + ${curso.seccion}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="curso2" class="form-label text-muted small">Segundo Curso</label>
+                                        <select class="form-select" id="curso2" name="cursoIds">
+                                            <option value="" selected disabled>-- Seleccione 2do curso --</option>
+                                            <option th:each="curso : ${todosLosCursos}" 
+                                                    th:value="${curso.idCurso}" 
+                                                    th:text="${curso.nombre} + ' - ' + ${curso.grado} + ' ' + ${curso.seccion}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
@@ -179,44 +195,57 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         function adaptarFormulario() {
             const rol = document.getElementById("rol").value;
             const seccionAdicional = document.getElementById("seccionAdicional");
             const labelCodigo = document.getElementById("labelCodigo");
             const inputCodigo = document.getElementById("codigo");
-            
+
             const contenedorGradoSeccion = document.getElementById("contenedorGradoSeccion");
             const selectGrado = document.getElementById("grado");
             const selectSeccion = document.getElementById("seccion");
+
+            const contenedorCursosDocente = document.getElementById("contenedorCursosDocente");
+            const selectCurso1 = document.getElementById("curso1");
+            const selectCurso2 = document.getElementById("curso2");
 
             if (rol === "ALUMNO") {
                 seccionAdicional.style.display = "flex";
                 labelCodigo.innerHTML = '<i class="bi bi-person-badge me-1"></i> Código de Alumno';
                 inputCodigo.placeholder = "Ej. AL2026001";
                 inputCodigo.required = true;
-                
-                // Mostrar y hacer obligatorios grado y sección
+
                 contenedorGradoSeccion.style.display = "block";
                 selectGrado.required = true;
                 selectSeccion.required = true;
+
+                contenedorCursosDocente.style.display = "none";
+                selectCurso1.required = false;
+                selectCurso1.value = "";
+                selectCurso2.required = false;
+                selectCurso2.value = "";
 
             } else if (rol === "DOCENTE") {
                 seccionAdicional.style.display = "flex";
                 labelCodigo.innerHTML = '<i class="bi bi-briefcase me-1"></i> Código de Docente / DNI';
                 inputCodigo.placeholder = "Ej. DOC-76543210";
                 inputCodigo.required = true;
-                
-                // Ocultar y limpiar grado y sección
+
                 contenedorGradoSeccion.style.display = "none";
                 selectGrado.required = false;
                 selectGrado.value = "";
                 selectSeccion.required = false;
                 selectSeccion.value = "";
+
+                contenedorCursosDocente.style.display = "block";
+                selectCurso1.required = true;
+                selectCurso2.required = true;
+            } else {
+                seccionAdicional.style.display = "none";
             }
         }
     </script>
 </body>
-
 </html>
