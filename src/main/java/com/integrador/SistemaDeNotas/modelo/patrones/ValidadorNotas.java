@@ -2,7 +2,6 @@ package com.integrador.SistemaDeNotas.modelo.patrones;
 
 import java.math.BigDecimal;
 
-// 1. LA CLASE PRINCIPAL ES PÚBLICA (El archivo se llama ValidadorNotas.java)
 public abstract class ValidadorNotas {
     protected ValidadorNotas siguiente;
 

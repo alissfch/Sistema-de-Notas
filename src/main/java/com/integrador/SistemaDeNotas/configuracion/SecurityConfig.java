@@ -17,17 +17,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                // Dejamos públicos los archivos CSS/JS y el login
                 .requestMatchers("/css/**", "/js/**", "/login").permitAll()
-                // Protegemos las rutas según el rol
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/docente/**").hasRole("DOCENTE")
                 .requestMatchers("/alumno/**").hasRole("ALUMNO")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login") // Le decimos a Spring que use nuestro HTML
-                .successHandler(customSuccessHandler()) // Controlador inteligente de redirección
+                .loginPage("/login") 
+                .successHandler(customSuccessHandler()) 
                 .permitAll()
             )
             .logout(logout -> logout
@@ -39,7 +37,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Esta es la pieza que decide a dónde va cada usuario
     @Bean
     public AuthenticationSuccessHandler customSuccessHandler() {
         return (request, response, authentication) -> {
@@ -55,7 +52,6 @@ public class SecurityConfig {
         };
     }
 
-    // Encriptador de contraseñas requerido por Spring (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

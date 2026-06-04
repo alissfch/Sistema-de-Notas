@@ -8,16 +8,12 @@ import java.util.List;
 import com.integrador.SistemaDeNotas.modelo.entidades.Alumno;
 import com.integrador.SistemaDeNotas.modelo.entidades.Nota;
 
-// 1. Le quitamos el 'public' a la interfaz. Ahora es visible en este paquete.
 interface Comando {
     String ejecutar();
 }
 
-// 2. Le ponemos el 'public' a esta clase porque coincide con el nombre del archivo.
 public class ComandoCalcularPromedio implements Comando {
     
-    // El IDE te sugiere ponerle 'final' (es una buena práctica en Java para 
-    // variables que no van a cambiar después de que se crea el objeto).
     private final Alumno estudiante;
 
     public ComandoCalcularPromedio(Alumno estudiante) {
@@ -42,7 +38,7 @@ public class ComandoCalcularPromedio implements Comando {
     }
 }
 
-// 3. El Invoker también se queda aquí sin 'public'
+
 class Invoker {
     private List<String> historial = new ArrayList<>();
 
