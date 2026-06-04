@@ -15,10 +15,10 @@ import jakarta.persistence.Table;
 @Table(name = "Usuario")
 public class Usuario {
 
-    public enum RolUsuario {
-        ADMIN, DOCENTE
+public enum RolUsuario {
+        ADMIN, DOCENTE, ALUMNO // <-- ¡Agregamos ALUMNO aquí!
     }
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")

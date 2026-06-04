@@ -21,6 +21,9 @@ public class Alumno {
     @Column(name = "id_alumno")
     private Integer idAlumno;
 
+    @Column(name = "codigo_institucional", unique = true)
+    private String codigo;
+
     @Column(nullable = false)
     private String nombres;
 
@@ -28,7 +31,7 @@ public class Alumno {
     private String apellidos;
 
     @Column(name = "fecha_nacimiento")
-    private LocalDate fechaNacimiento; // Mapea perfectamente con el tipo DATE de MySQL
+    private LocalDate fechaNacimiento; 
 
     @Column(nullable = false)
     private String grado;
@@ -39,10 +42,6 @@ public class Alumno {
     @Column(nullable = false)
     private boolean estado;
 
-    // --- RELACIONES REVERSAS (One-To-Many) ---
-    // Un alumno puede tener muchas matrículas, muchas notas y muchas asistencias.
-    // El "mappedBy" indica el nombre del objeto 'alumno' dentro de las clases Matricula, Nota y Asistencia.
-
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<Matricula> matriculas;
 
@@ -52,11 +51,8 @@ public class Alumno {
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<Asistencia> asistencias;
 
-    // Constructor vacío obligatorio para JPA
     public Alumno() {
     }
-
-    // --- GETTERS Y SETTERS ---
 
     public Integer getIdAlumno() {
         return idAlumno;
@@ -137,4 +133,7 @@ public class Alumno {
     public void setAsistencias(List<Asistencia> asistencias) {
         this.asistencias = asistencias;
     }
+
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
 }

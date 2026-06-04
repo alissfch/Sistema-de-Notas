@@ -38,4 +38,9 @@ public class VistasControlador {
     public String mostrarReporteRegistros() {
         return "admin/registro-report"; // Busca templates/admin/reporte-registros.html
     }
+
+    @GetMapping("/admin/crear-usuario")
+    public String mostrarFormularioCrearUsuario() {
+        return "admin/formulario-crear"; // Busca templates/admin/formulario-crear.html
+    }
 }

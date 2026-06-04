@@ -1,5 +1,6 @@
 package com.integrador.SistemaDeNotas.modelo.entidades;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +16,9 @@ public class Docente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_docente;
+
+    @Column(name = "codigo_institucional", unique = true)
+    private String codigo;
 
     @OneToOne
     @JoinColumn(name = "id_usuario") 
@@ -54,11 +58,11 @@ public class Docente {
     public void setEstado(boolean estado) {
         this.estado = estado;
     }
+
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
     
-    public Docente(String especialidad, boolean estado, Integer id_docente, Usuario usuario) {
-        this.especialidad = especialidad;
-        this.estado = estado;
-        this.id_docente = id_docente;
-        this.usuario = usuario;
-    }
+    public Docente() {
+
+}
 }
