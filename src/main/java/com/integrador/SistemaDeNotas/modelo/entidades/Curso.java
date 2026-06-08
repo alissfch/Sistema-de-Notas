@@ -29,11 +29,8 @@ public class Curso {
     @Column(name = "nombre_curso", nullable = false)
     private String nombreCurso;
 
-    @Column(columnDefinition = "TEXT") 
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
-
-    @Column(nullable = false)
-    private String grado;
 
     @Column(nullable = false)
     private String seccion;
@@ -50,35 +47,78 @@ public class Curso {
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private List<Asistencia> asistencias;
 
-    public Curso() {}
+    public Curso() {
+    }
 
-    public Integer getIdCurso() { return idCurso; }
-    public void setIdCurso(Integer idCurso) { this.idCurso = idCurso; }
+    public Integer getIdCurso() {
+        return idCurso;
+    }
 
-    public Docente getDocente() { return docente; }
-    public void setDocente(Docente docente) { this.docente = docente; }
+    public void setIdCurso(Integer idCurso) {
+        this.idCurso = idCurso;
+    }
 
-    public String getNombreCurso() { return nombreCurso; }
-    public void setNombreCurso(String nombreCurso) { this.nombreCurso = nombreCurso; }
+    public Docente getDocente() {
+        return docente;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
 
-    public String getGrado() { return grado; }
-    public void setGrado(String grado) { this.grado = grado; }
+    public String getNombreCurso() {
+        return nombreCurso;
+    }
 
-    public String getSeccion() { return seccion; }
-    public void setSeccion(String seccion) { this.seccion = seccion; }
+    public void setNombreCurso(String nombreCurso) {
+        this.nombreCurso = nombreCurso;
+    }
 
-    public boolean isEstado() { return estado; }
-    public void setEstado(boolean estado) { this.estado = estado; }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-    public List<Matricula> getMatriculas() { return matriculas; }
-    public void setMatriculas(List<Matricula> matriculas) { this.matriculas = matriculas; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-    public List<Evaluacion> getEvaluaciones() { return evaluaciones; }
-    public void setEvaluaciones(List<Evaluacion> evaluaciones) { this.evaluaciones = evaluaciones; }
+    public String getSeccion() {
+        return seccion;
+    }
 
-    public List<Asistencia> getAsistencias() { return asistencias; }
-    public void setAsistencias(List<Asistencia> asistencias) { this.asistencias = asistencias; }
+    public void setSeccion(String seccion) {
+        this.seccion = seccion;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+
+    public List<Matricula> getMatriculas() {
+        return matriculas;
+    }
+
+    public void setMatriculas(List<Matricula> matriculas) {
+        this.matriculas = matriculas;
+    }
+
+    public List<Evaluacion> getEvaluaciones() {
+        return evaluaciones;
+    }
+
+    public void setEvaluaciones(List<Evaluacion> evaluaciones) {
+        this.evaluaciones = evaluaciones;
+    }
+
+    public List<Asistencia> getAsistencias() {
+        return asistencias;
+    }
+
+    public void setAsistencias(List<Asistencia> asistencias) {
+        this.asistencias = asistencias;
+    }
 }

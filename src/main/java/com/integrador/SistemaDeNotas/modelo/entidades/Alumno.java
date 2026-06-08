@@ -40,9 +40,6 @@ public class Alumno {
     private LocalDate fechaNacimiento;
 
     @Column(nullable = false)
-    private String grado;
-
-    @Column(nullable = false)
     private String seccion;
 
     @Column(nullable = false)
@@ -90,14 +87,6 @@ public class Alumno {
 
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public String getGrado() {
-        return grado;
-    }
-
-    public void setGrado(String grado) {
-        this.grado = grado;
     }
 
     public String getSeccion() {

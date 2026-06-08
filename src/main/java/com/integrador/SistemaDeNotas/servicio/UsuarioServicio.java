@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.integrador.SistemaDeNotas.modelo.entidades.Alumno;
+import com.integrador.SistemaDeNotas.modelo.entidades.Curso;
 import com.integrador.SistemaDeNotas.modelo.entidades.Docente;
 import com.integrador.SistemaDeNotas.modelo.entidades.Usuario;
-import com.integrador.SistemaDeNotas.modelo.entidades.Curso;
-import com.integrador.SistemaDeNotas.repositorio.CursoRepository;
 import com.integrador.SistemaDeNotas.repositorio.AlumnoRepository;
+import com.integrador.SistemaDeNotas.repositorio.CursoRepository;
 import com.integrador.SistemaDeNotas.repositorio.DocenteRepository;
 import com.integrador.SistemaDeNotas.repositorio.UsuarioRepository;
 
@@ -28,7 +28,7 @@ public class UsuarioServicio {
 
 @Transactional
 public void registrarNuevoUsuario(String correo, String passwordRaw, String rol, 
-                                  String nombres, String apellidos, String codigo, String grado, String seccion, List<Integer> cursoIds) {
+                                  String nombres, String apellidos, String codigo, String seccion, List<Integer> cursoIds) {
     
     Usuario nuevoUsuario = new Usuario();
     nuevoUsuario.setNombre(nombres);
@@ -65,7 +65,6 @@ public void registrarNuevoUsuario(String correo, String passwordRaw, String rol,
         alumno.setApellidos(apellidos);
         alumno.setEstado(true);
         alumno.setFechaNacimiento(LocalDate.now().minusYears(15));
-        alumno.setGrado(grado);
         alumno.setSeccion(seccion);
         alumno.setCodigo(codigo);
 

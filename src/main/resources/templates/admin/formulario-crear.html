@@ -128,29 +128,14 @@
                                 <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Ingrese el identificador" />
                             </div>
 
-                            <div class="col-md-6" id="contenedorGradoSeccion" style="display: none;">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label for="grado" class="form-label"><i class="bi bi-mortarboard me-1"></i>Grado</label>
-                                        <select class="form-select" id="grado" name="grado">
-                                            <option value="" selected disabled>Elegir...</option>
-                                            <option value="1ro Secundaria">1ro</option>
-                                            <option value="2do Secundaria">2do</option>
-                                            <option value="3ro Secundaria">3ro</option>
-                                            <option value="4to Secundaria">4to</option>
-                                            <option value="5to Secundaria">5to</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="seccion" class="form-label"><i class="bi bi-diagram-3 me-1"></i>Sección</label>
-                                        <select class="form-select" id="seccion" name="seccion">
-                                            <option value="" selected disabled>Elegir...</option>
-                                            <option value="A">A</option>
-                                            <option value="B">B</option>
-                                            <option value="C">C</option>
-                                        </select>
-                                    </div>
-                                </div>
+                            <div class="col-md-6" id="contenedorSeccion" style="display: none;">
+                                <label for="seccion" class="form-label"><i class="bi bi-diagram-3 me-1"></i>Sección (5to Año)</label>
+                                <select class="form-select" id="seccion" name="seccion">
+                                    <option value="" selected disabled>Elegir sección...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                </select>
                             </div>
 
                             <div class="col-12 mt-4" id="contenedorCursosDocente" style="display: none;">
@@ -163,7 +148,7 @@
                                             <option value="" selected disabled>-- Seleccione 1er curso --</option>
                                             <option th:each="curso : ${todosLosCursos}" 
                                                     th:value="${curso.idCurso}" 
-                                                    th:text="${curso.nombre} + ' - ' + ${curso.grado} + ' ' + ${curso.seccion}">
+                                                    th:text="${curso.nombreCurso} + ' - Sección ' + ${curso.seccion}">
                                             </option>
                                         </select>
                                     </div>
@@ -173,7 +158,7 @@
                                             <option value="" selected disabled>-- Seleccione 2do curso --</option>
                                             <option th:each="curso : ${todosLosCursos}" 
                                                     th:value="${curso.idCurso}" 
-                                                    th:text="${curso.nombre} + ' - ' + ${curso.grado} + ' ' + ${curso.seccion}">
+                                                    th:text="${curso.nombreCurso} + ' - Sección ' + ${curso.seccion}">
                                             </option>
                                         </select>
                                     </div>
@@ -203,8 +188,7 @@
             const labelCodigo = document.getElementById("labelCodigo");
             const inputCodigo = document.getElementById("codigo");
 
-            const contenedorGradoSeccion = document.getElementById("contenedorGradoSeccion");
-            const selectGrado = document.getElementById("grado");
+            const contenedorSeccion = document.getElementById("contenedorSeccion");
             const selectSeccion = document.getElementById("seccion");
 
             const contenedorCursosDocente = document.getElementById("contenedorCursosDocente");
@@ -217,15 +201,15 @@
                 inputCodigo.placeholder = "Ej. AL2026001";
                 inputCodigo.required = true;
 
-                contenedorGradoSeccion.style.display = "block";
-                selectGrado.required = true;
+                contenedorSeccion.style.display = "block";
                 selectSeccion.required = true;
+                selectSeccion.disabled = false; // Habilitado para que se envíe a Java
 
                 contenedorCursosDocente.style.display = "none";
                 selectCurso1.required = false;
-                selectCurso1.value = "";
+                selectCurso1.disabled = true;   // Deshabilitado para que NO envíe basura
                 selectCurso2.required = false;
-                selectCurso2.value = "";
+                selectCurso2.disabled = true;   // Deshabilitado para que NO envíe basura
 
             } else if (rol === "DOCENTE") {
                 seccionAdicional.style.display = "flex";
@@ -233,15 +217,15 @@
                 inputCodigo.placeholder = "Ej. DOC-76543210";
                 inputCodigo.required = true;
 
-                contenedorGradoSeccion.style.display = "none";
-                selectGrado.required = false;
-                selectGrado.value = "";
+                contenedorSeccion.style.display = "none";
                 selectSeccion.required = false;
-                selectSeccion.value = "";
+                selectSeccion.disabled = true;  // Deshabilitado para que NO envíe basura
 
                 contenedorCursosDocente.style.display = "block";
                 selectCurso1.required = true;
+                selectCurso1.disabled = false;  // Habilitado para que se envíe a Java
                 selectCurso2.required = true;
+                selectCurso2.disabled = false;  // Habilitado para que se envíe a Java
             } else {
                 seccionAdicional.style.display = "none";
             }

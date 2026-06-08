@@ -23,7 +23,6 @@ public class UsuarioControlador {
             @RequestParam String contrasenaSinEncriptar,
             @RequestParam String rol,
             @RequestParam(required = false) String codigo,
-            @RequestParam(required = false) String grado,
             @RequestParam(required = false) String seccion,
             @RequestParam(value = "cursoIds", required = false) List<Integer> cursoIds,
             Model model) {
@@ -40,9 +39,7 @@ public class UsuarioControlador {
             return "admin/formulario-crear";
         }
 
-        try {
-            usuarioServicio.registrarNuevoUsuario(correo, contrasenaSinEncriptar, rol, nombre, apellido, codigo, grado,
-                    seccion, cursoIds);
+        try {usuarioServicio.registrarNuevoUsuario(correo, contrasenaSinEncriptar, rol, nombre, apellido, codigo, seccion, cursoIds);
             return "redirect:/admin/panel?exito";
 
         } catch (Exception e) {
