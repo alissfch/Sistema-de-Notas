@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Curso | I.E. José Carlos Mariátegui</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+    <style>
+        body {
+            font-family: "Jost", sans-serif;
+            background-color: #f4f9f4;
+        }
+
+        .navbar-custom {
+            background-color: #1c4b27;
+        }
+
+        h2, h4 {
+            font-family: "Playfair Display", serif;
+            color: #1c4b27;
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(28, 75, 39, 0.08);
+            background-color: white;
+            padding: 25px;
+        }
+
+        .table-custom thead {
+            background-color: #2b7a3e;
+            color: white;
+        }
+
+        .btn-green {
+            background-color: #2b7a3e;
+            color: white;
+            border-radius: 6px;
+        }
+        .btn-green:hover {
+            background-color: #1c4b27;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="bi bi-book-half me-2"></i>I.E. J.C. Mariátegui</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item text-light me-3">
+                        <i class="bi bi-person-circle me-1"></i> Prof. <span th:text="${nombreDocente}">Docente</span>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/docente/panel}" class="btn btn-sm btn-outline-light"><i class="bi bi-house-door me-1"></i>Inicio</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a th:href="@{/docente/panel}" class="text-decoration-none text-success mb-2 d-inline-block">
+                    <i class="bi bi-arrow-left"></i> Volver a mis cursos
+                </a>
+                <h2>
+                    <span th:text="${curso.nombreCurso}">Nombre del Curso</span> 
+                    <span class="badge bg-success ms-2" th:text="'Sección ' + ${curso.seccion}">A</span>
+                </h2>
+                <p class="text-muted mb-0">5to Año de Secundaria</p>
+            </div>
+            <div>
+                <button class="btn btn-green"><i class="bi bi-plus-circle me-2"></i>Crear Evaluación</button>
+            </div>
+        </div>
+
+        <div class="card-custom">
+            <h5 class="mb-4"><i class="bi bi-people-fill me-2 text-success"></i>Alumnos Matriculados</h5>
+            
+            <div th:if="${alumnos == null or alumnos.isEmpty()}" class="alert alert-info text-center">
+                Aún no hay alumnos registrados en la Sección <strong th:text="${curso.seccion}"></strong>.
+            </div>
+
+            <div class="table-responsive" th:if="${alumnos != null and !alumnos.isEmpty()}">
+                <table class="table table-hover table-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Código</th>
+                            <th scope="col">Apellidos y Nombres</th>
+                            <th scope="col" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="alumno, stat : ${alumnos}">
+                            <th scope="row" th:text="${stat.count}">1</th>
+                            <td th:text="${alumno.codigo}">AL001</td>
+                            <td class="fw-bold" th:text="${alumno.apellidos} + ', ' + ${alumno.nombres}">Pérez, Juan</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" title="Registrar Nota">
+                                    <i class="bi bi-pencil-square"></i> Calificar
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Ver Historial">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
