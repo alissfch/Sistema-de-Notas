@@ -10,4 +10,5 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Alumno;
 @Repository
 public interface AlumnoRepository extends JpaRepository<Alumno, Integer> {
     List<Alumno> findBySeccion(String seccion);
+    List<Alumno> findByNombresContainingIgnoreCase(String nombre);
 }

@@ -36,7 +36,6 @@ public class SistemaDeNotasApplication {
                 admin.setAdministrador(detalleAdmin);
 
                 usuarioRepo.save(admin);
-                System.out.println("Administrador de prueba creado: admin@jcm.edu.pe / Admin123!");
             }
         };
     }

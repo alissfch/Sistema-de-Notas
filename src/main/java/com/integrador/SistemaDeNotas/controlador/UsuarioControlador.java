@@ -44,8 +44,6 @@ public class UsuarioControlador {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-
             model.addAttribute("errorClave", "Ocurrió un error al registrar el usuario en la base de datos.");
             return "admin/formulario-crear";
         }

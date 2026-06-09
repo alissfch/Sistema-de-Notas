@@ -1,137 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Panel Docente | I.E. José Carlos Mariátegui</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-
-    <style>
-        body {
-            font-family: "Jost", sans-serif;
-            background-color: #f4f9f4;
-        }
-
-        .navbar-custom {
-            background-color: #1c4b27;
-        }
-
-        h2, h4 {
-            font-family: "Playfair Display", serif;
-            color: #1c4b27;
-        }
-
-        .card-curso {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(28, 75, 39, 0.08);
-            transition: transform 0.3s ease;
-            height: 100%;
-        }
-
-        .card-curso:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(28, 75, 39, 0.15);
-        }
-
-        .curso-header {
-            background-color: #2b7a3e;
-            color: white;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            padding: 15px;
-        }
-
-        .seccion-badge {
-            background-color: #e9f2eb;
-            color: #1c4b27;
-            font-weight: bold;
-            font-size: 1.1rem;
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-
-        .btn-ingresar {
-            background-color: #f8fbf8;
-            color: #2b7a3e;
-            border: 1px solid #2b7a3e;
-            font-weight: 500;
-        }
-
-        .btn-ingresar:hover {
-            background-color: #2b7a3e;
-            color: white;
-        }
-    </style>
-</head>
+<head th:replace="~{docente/fragmentos :: head('Dashboard Docente')}"></head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="bi bi-book-half me-2"></i>I.E. J.C. Mariátegui</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center">
-                    <li class="nav-item text-light me-3">
-                        <i class="bi bi-person-circle me-1"></i> Prof. <span th:text="${nombreDocente}">Docente</span>
-                    </li>
-                    <li class="nav-item">
-                        <form th:action="@{/logout}" method="post" class="m-0">
-                            <button type="submit" class="btn btn-sm btn-outline-light"><i class="bi bi-box-arrow-right me-1"></i>Salir</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{docente/fragmentos :: sidebar('inicio', false)}"></nav>
 
-    <div class="container mb-5">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2>Mis Cursos Asignados</h2>
-                <p class="text-muted">Seleccione un curso para registrar notas y asistencias (5to de Secundaria).</p>
-                <hr>
-            </div>
-        </div>
+    <div id="content">
+        <nav th:replace="~{docente/fragmentos :: navbar(${nombreDocente}, false)}"></nav>
 
-        <div th:if="${misCursos == null or misCursos.isEmpty()}" class="alert alert-warning text-center" role="alert">
-            <i class="bi bi-exclamation-circle fs-4 d-block mb-2"></i>
-            Aún no se le han asignado cursos para este año escolar. Comuníquese con el administrador.
-        </div>
+        <div class="dashboard-content">
+            <h2 class="page-title">Bienvenido(a), <span th:text="${nombreDocente}">Docente</span></h2>
+            <p class="page-subtitle">Gestiona tus cursos, calificaciones y asistencia desde tu panel de control.</p>
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            
-            <div class="col" th:each="curso : ${misCursos}">
-                <div class="card card-curso">
-                    <div class="curso-header d-flex justify-content-between align-items-center">
-                        <h5 class="m-0 text-truncate" th:text="${curso.nombreCurso}">Nombre del Curso</h5>
-                        <span class="seccion-badge" th:text="${curso.seccion}">A</span>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text text-muted small" th:text="${curso.descripcion}">Descripción de la materia curricular.</p>
-                        
-                        <div class="d-flex align-items-center mb-3 text-secondary">
-                            <i class="bi bi-mortarboard me-2"></i> <span>5to Año de Secundaria</span>
-                        </div>
-
-                        <div class="d-grid mt-3">
-                            <a th:href="@{/docente/curso/{id}(id=${curso.idCurso})}" class="btn btn-ingresar">
-                                <i class="bi bi-journal-text me-1"></i> Gestionar Curso
-                            </a>
-                        </div>
+            <div th:if="${misCursos == null or misCursos.isEmpty()}" class="alert alert-warning border-0 shadow-sm rounded-3 mb-5" role="alert" style="background-color: #fffbeb; color: #b45309; border-left: 5px solid #f59e0b !important;">
+                <div class="d-flex align-items-center p-2">
+                    <i class="bi bi-exclamation-triangle-fill fs-2 me-4"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1 fw-bold">Sin cursos asignados</h5>
+                        <p class="mb-0">Aún no se le han asignado cursos para este año escolar. Comuníquese con la administración.</p>
                     </div>
                 </div>
             </div>
 
+            <h5 class="fw-bold mb-4" style="color: #374151" th:if="${misCursos != null and !misCursos.isEmpty()}">
+                <i class="bi bi-collection me-2 text-success"></i> Mis Cursos a Cargo (5to Año)
+            </h5>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                <div class="col" th:each="curso : ${misCursos}">
+                    <div class="card card-curso">
+                        <div class="curso-img-top">
+                            <span class="curso-badge"><i class="bi bi-diagram-3-fill me-1"></i> Sec. <span th:text="${curso.seccion}">A</span></span>
+                        </div>
+                        <div class="card-body p-4 pt-3 d-flex flex-column">
+                            <h5 class="fw-bold text-dark mb-1" th:text="${curso.nombreCurso}">Nombre del Curso</h5>
+                            <p class="text-muted small mb-4" th:text="${curso.descripcion}" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                Descripción de la materia.
+                            </p>
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+                                    <span class="text-secondary small fw-semibold"><i class="bi bi-mortarboard-fill me-1" style="color: #4ade80"></i>Secundaria</span>
+                                    <span class="text-secondary small fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>2026</span>
+                                </div>
+                                <div class="d-grid">
+                                    <a th:href="@{/docente/curso/{id}(id=${curso.idCurso})}" class="btn btn-ingresar py-2">
+                                        Gestionar Curso <i class="bi bi-arrow-right ms-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("sidebarToggle")?.addEventListener("click", function () {
+            document.getElementById("sidebar").classList.toggle("active");
+        });
+    </script>
 </body>
 </html>
