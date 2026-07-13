@@ -359,11 +359,11 @@
                 </a>
             </th:block>
             <div class="menu-section">Reportes</div>
-            <a href="#">
+            <a th:href="@{/docente/reportes/asistencia}" th:classappend="${menuActivo == 'reporte-asistencia'} ? 'active' : ''">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reporte de Asistencia
             </a>
-            <a href="#">
-                <i class="bi bi-pie-chart"></i> Reporte de Evaluaciones
+            <a th:href="@{/docente/reportes/notas}" th:classappend="${menuActivo == 'reporte-notas'} ? 'active' : ''">
+                <i class="bi bi-pie-chart"></i> Reporte de Notas
             </a>
         </div>
         </div>

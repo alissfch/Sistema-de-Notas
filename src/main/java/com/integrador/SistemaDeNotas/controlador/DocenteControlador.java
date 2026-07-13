@@ -1,6 +1,7 @@
 package com.integrador.SistemaDeNotas.controlador;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -226,6 +227,203 @@ public class DocenteControlador {
             }
         }
         return "redirect:/docente/curso/" + id + "?exito";
+    }
+
+    @GetMapping("/docente/reportes/notas")
+    public String reporteNotas(@RequestParam(required = false) Integer cursoId, Model model, Principal principal) {
+        Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
+        Docente miDocente = usuario.getDocente();
+
+        List<Curso> misCursos = (miDocente != null && miDocente.getCursosAsignados() != null)
+                ? miDocente.getCursosAsignados() : new ArrayList<>();
+
+        Curso cursoSeleccionado = null;
+        if (cursoId != null) {
+            for (Curso c : misCursos) {
+                if (c.getIdCurso().equals(cursoId)) { cursoSeleccionado = c; break; }
+            }
+        }
+        if (cursoSeleccionado == null && !misCursos.isEmpty()) {
+            cursoSeleccionado = misCursos.get(0);
+        }
+
+        List<Evaluacion> evaluacionesActivas = new ArrayList<>();
+        List<FilaReporteNotaDTO> filas = new ArrayList<>();
+
+        if (cursoSeleccionado != null) {
+            if (cursoSeleccionado.getEvaluaciones() != null) {
+                evaluacionesActivas = cursoSeleccionado.getEvaluaciones().stream()
+                        .filter(e -> e != null && e.isEstado())
+                        .sorted((a, b) -> a.getFecha().compareTo(b.getFecha()))
+                        .collect(Collectors.toList());
+            }
+
+            List<Alumno> alumnos = alumnoRepository.findBySeccion(cursoSeleccionado.getSeccion());
+            alumnos.sort((a1, a2) -> a1.getApellidos().compareToIgnoreCase(a2.getApellidos()));
+
+            for (Alumno alumno : alumnos) {
+                List<BigDecimal> valores = new ArrayList<>();
+                BigDecimal sumaPonderada = BigDecimal.ZERO;
+                BigDecimal sumaPesos = BigDecimal.ZERO;
+
+                for (Evaluacion ev : evaluacionesActivas) {
+                    BigDecimal valorNota = null;
+                    if (alumno.getNotas() != null) {
+                        for (Nota n : alumno.getNotas()) {
+                            if (n.getEvaluacion().getIdEvaluacion().equals(ev.getIdEvaluacion())) {
+                                valorNota = n.getValor();
+                                break;
+                            }
+                        }
+                    }
+                    valores.add(valorNota);
+                    if (valorNota != null && ev.getPesoPorcentual() != null) {
+                        sumaPonderada = sumaPonderada.add(valorNota.multiply(ev.getPesoPorcentual()));
+                        sumaPesos = sumaPesos.add(ev.getPesoPorcentual());
+                    }
+                }
+
+                BigDecimal promedio = null;
+                String estado = "Sin notas";
+                if (sumaPesos.compareTo(BigDecimal.ZERO) > 0) {
+                    promedio = sumaPonderada.divide(sumaPesos, 2, RoundingMode.HALF_UP);
+                    if (promedio.compareTo(new BigDecimal("14")) >= 0) {
+                        estado = "Aprobado";
+                    } else if (promedio.compareTo(new BigDecimal("11")) >= 0) {
+                        estado = "En proceso";
+                    } else {
+                        estado = "En inicio";
+                    }
+                }
+
+                filas.add(new FilaReporteNotaDTO(alumno, valores, promedio, estado));
+            }
+        }
+
+        model.addAttribute("misCursos", misCursos);
+        model.addAttribute("cursoSeleccionado", cursoSeleccionado);
+        model.addAttribute("evaluacionesActivas", evaluacionesActivas);
+        model.addAttribute("filas", filas);
+        model.addAttribute("nombreDocente", usuario.getNombre() + " " + usuario.getApellido());
+
+        return "docente/reporte-notas";
+    }
+
+    @GetMapping("/docente/reportes/asistencia")
+    public String reporteAsistencia(@RequestParam(required = false) Integer cursoId, Model model, Principal principal) {
+        Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
+        Docente miDocente = usuario.getDocente();
+
+        List<Curso> misCursos = (miDocente != null && miDocente.getCursosAsignados() != null)
+                ? miDocente.getCursosAsignados() : new ArrayList<>();
+
+        Curso cursoSeleccionado = null;
+        if (cursoId != null) {
+            for (Curso c : misCursos) {
+                if (c.getIdCurso().equals(cursoId)) { cursoSeleccionado = c; break; }
+            }
+        }
+        if (cursoSeleccionado == null && !misCursos.isEmpty()) {
+            cursoSeleccionado = misCursos.get(0);
+        }
+
+        List<FilaReporteAsistenciaDTO> filas = new ArrayList<>();
+
+        if (cursoSeleccionado != null) {
+            List<Alumno> alumnos = alumnoRepository.findBySeccion(cursoSeleccionado.getSeccion());
+            alumnos.sort((a1, a2) -> a1.getApellidos().compareToIgnoreCase(a2.getApellidos()));
+
+            for (Alumno alumno : alumnos) {
+                int asistio = 0, tardanza = 0, falta = 0, justificada = 0;
+                if (alumno.getAsistencias() != null) {
+                    for (Asistencia a : alumno.getAsistencias()) {
+                        if (a.getCurso() == null || !a.getCurso().getIdCurso().equals(cursoSeleccionado.getIdCurso())) {
+                            continue;
+                        }
+                        switch (a.getEstado()) {
+                            case ASISTIO -> asistio++;
+                            case TARDANZA -> tardanza++;
+                            case FALTA -> falta++;
+                            case FALTA_JUSTIFICADA -> justificada++;
+                        }
+                    }
+                }
+
+                int total = asistio + tardanza + falta + justificada;
+                BigDecimal porcentaje = null;
+                String estado = "Sin registros";
+                if (total > 0) {
+                    BigDecimal efectivas = BigDecimal.valueOf(asistio + tardanza);
+                    porcentaje = efectivas.multiply(BigDecimal.valueOf(100))
+                            .divide(BigDecimal.valueOf(total), 1, RoundingMode.HALF_UP);
+                    if (porcentaje.compareTo(new BigDecimal("90")) >= 0) {
+                        estado = "Bueno";
+                    } else if (porcentaje.compareTo(new BigDecimal("80")) >= 0) {
+                        estado = "Regular";
+                    } else {
+                        estado = "Riesgo";
+                    }
+                }
+
+                filas.add(new FilaReporteAsistenciaDTO(alumno, asistio, tardanza, falta, justificada, total, porcentaje, estado));
+            }
+        }
+
+        model.addAttribute("misCursos", misCursos);
+        model.addAttribute("cursoSeleccionado", cursoSeleccionado);
+        model.addAttribute("filas", filas);
+        model.addAttribute("nombreDocente", usuario.getNombre() + " " + usuario.getApellido());
+
+        return "docente/reporte-asistencia";
+    }
+
+    public static class FilaReporteNotaDTO {
+        private final Alumno alumno;
+        private final List<BigDecimal> valores;
+        private final BigDecimal promedio;
+        private final String estado;
+
+        public FilaReporteNotaDTO(Alumno alumno, List<BigDecimal> valores, BigDecimal promedio, String estado) {
+            this.alumno = alumno;
+            this.valores = valores;
+            this.promedio = promedio;
+            this.estado = estado;
+        }
+        public Alumno getAlumno() { return alumno; }
+        public List<BigDecimal> getValores() { return valores; }
+        public BigDecimal getPromedio() { return promedio; }
+        public String getEstado() { return estado; }
+    }
+
+    public static class FilaReporteAsistenciaDTO {
+        private final Alumno alumno;
+        private final int asistio;
+        private final int tardanza;
+        private final int falta;
+        private final int justificada;
+        private final int total;
+        private final BigDecimal porcentaje;
+        private final String estado;
+
+        public FilaReporteAsistenciaDTO(Alumno alumno, int asistio, int tardanza, int falta, int justificada,
+                                         int total, BigDecimal porcentaje, String estado) {
+            this.alumno = alumno;
+            this.asistio = asistio;
+            this.tardanza = tardanza;
+            this.falta = falta;
+            this.justificada = justificada;
+            this.total = total;
+            this.porcentaje = porcentaje;
+            this.estado = estado;
+        }
+        public Alumno getAlumno() { return alumno; }
+        public int getAsistio() { return asistio; }
+        public int getTardanza() { return tardanza; }
+        public int getFalta() { return falta; }
+        public int getJustificada() { return justificada; }
+        public int getTotal() { return total; }
+        public BigDecimal getPorcentaje() { return porcentaje; }
+        public String getEstado() { return estado; }
     }
 
     public static class FilaAlumnoDTO {

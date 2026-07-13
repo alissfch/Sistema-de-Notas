@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{docente/fragmentos :: head('Reporte de Asistencia')}"></head>
+
+<body>
+
+    <nav th:replace="~{docente/fragmentos :: sidebar('reporte-asistencia', false)}"></nav>
+
+    <div id="content">
+
+        <nav th:replace="~{docente/fragmentos :: navbar(${nombreDocente}, true)}"></nav>
+
+        <div class="dashboard-content">
+
+            <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1"><i class="bi bi-calendar-check me-2 text-success"></i>Reporte de Asistencia</h2>
+                    <p class="text-muted mb-0">Consulta el acumulado de asistencia de cada alumno por curso.</p>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(misCursos)}" class="alert alert-warning border-0 shadow-sm rounded-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Aún no tiene cursos asignados para generar reportes.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(misCursos)}">
+
+                <div class="card-custom d-flex flex-row align-items-end flex-wrap gap-3">
+                    <form method="GET" th:action="@{/docente/reportes/asistencia}" id="formFiltroAsistencia" style="max-width: 380px; flex-grow: 1;">
+                        <label class="form-label fw-bold text-secondary mb-1">Curso</label>
+                        <select class="form-select border-success" name="cursoId" onchange="document.getElementById('formFiltroAsistencia').submit()">
+                            <option th:each="c : ${misCursos}" th:value="${c.idCurso}"
+                                th:text="${c.nombreCurso} + ' - Sec. ' + ${c.seccion}"
+                                th:selected="${cursoSeleccionado != null and c.idCurso == cursoSeleccionado.idCurso}">
+                            </option>
+                        </select>
+                    </form>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i>Imprimir
+                    </button>
+                </div>
+
+                <div class="card-custom p-0 overflow-hidden">
+                    <div class="p-4 border-bottom bg-light">
+                        <h5 class="m-0 fw-bold text-dark">
+                            Asistencia Acumulada
+                            <span th:if="${cursoSeleccionado != null}" class="badge bg-success ms-2"
+                                th:text="${cursoSeleccionado.nombreCurso} + ' - Sec. ' + ${cursoSeleccionado.seccion}"></span>
+                        </h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0 text-center align-middle">
+                            <thead>
+                                <tr>
+                                    <th width="4%">Nº</th>
+                                    <th width="24%" class="text-start">Alumno</th>
+                                    <th width="10%">Asistió</th>
+                                    <th width="10%">Tardanzas</th>
+                                    <th width="10%">Faltas</th>
+                                    <th width="12%">Justificadas</th>
+                                    <th width="14%">% Asistencia</th>
+                                    <th width="12%">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(filas)}">
+                                    <td colspan="8" class="text-center py-4 text-muted">No hay alumnos en esta sección.</td>
+                                </tr>
+                                <tr th:each="fila, stat : ${filas}">
+                                    <td class="fw-bold text-muted" th:text="${stat.count}">1</td>
+                                    <td class="fw-bold text-dark text-start"
+                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">Apellidos, Nombres</td>
+                                    <td>
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill" th:text="${fila.asistio}">0</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill" th:text="${fila.tardanza}">0</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill" th:text="${fila.falta}">0</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill" th:text="${fila.justificada}">0</span>
+                                    </td>
+                                    <td class="fw-bold fs-6">
+                                        <span th:if="${fila.porcentaje != null}" th:text="${fila.porcentaje} + '%'">95.0%</span>
+                                        <span th:unless="${fila.porcentaje != null}" class="text-muted">--</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${fila.estado == 'Bueno'}" class="badge rounded-pill px-3 py-2"
+                                            style="background-color:#dcfce7; color:#15803d;">Bueno</span>
+                                        <span th:if="${fila.estado == 'Regular'}" class="badge rounded-pill px-3 py-2"
+                                            style="background-color:#fef3c7; color:#b45309;">Regular</span>
+                                        <span th:if="${fila.estado == 'Riesgo'}" class="badge rounded-pill px-3 py-2"
+                                            style="background-color:#fee2e2; color:#b91c1c;">Riesgo</span>
+                                        <span th:if="${fila.estado == 'Sin registros'}" class="badge rounded-pill px-3 py-2 bg-light text-muted border">Sin registros</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-3 p-3 border-top bg-light">
+                        <span class="fw-semibold text-secondary small">Leyenda:</span>
+                        <span class="badge rounded-pill px-3 py-2" style="background-color:#dcfce7; color:#15803d;">Bueno (&ge; 90%)</span>
+                        <span class="badge rounded-pill px-3 py-2" style="background-color:#fef3c7; color:#b45309;">Regular (80% - 89%)</span>
+                        <span class="badge rounded-pill px-3 py-2" style="background-color:#fee2e2; color:#b91c1c;">Riesgo (&lt; 80%)</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-light border d-flex align-items-center gap-2 small text-muted" role="alert">
+                    <i class="bi bi-info-circle text-primary"></i>
+                    El porcentaje de asistencia considera asistencias y tardanzas como presencia efectiva.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("sidebarToggle")?.addEventListener("click", function () {
+            document.getElementById("sidebar").classList.toggle("active");
+        });
+    </script>
+</body>
+
+</html>
