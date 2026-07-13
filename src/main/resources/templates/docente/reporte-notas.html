@@ -6,21 +6,19 @@
 <body>
 
     <nav th:replace="~{docente/fragmentos :: sidebar('reporte-notas', false)}"></nav>
-
     <div id="content">
-
         <nav th:replace="~{docente/fragmentos :: navbar(${nombreDocente}, true)}"></nav>
-
         <div class="dashboard-content">
-
             <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
                 <div>
-                    <h2 class="fw-bold text-dark mb-1"><i class="bi bi-file-earmark-bar-graph me-2 text-success"></i>Reporte de Notas</h2>
+                    <h2 class="fw-bold text-dark mb-1"><i
+                            class="bi bi-file-earmark-bar-graph me-2 text-success"></i>Reporte de Notas</h2>
                     <p class="text-muted mb-0">Consulta el promedio y estado académico de cada alumno por curso.</p>
                 </div>
             </div>
 
-            <div th:if="${#lists.isEmpty(misCursos)}" class="alert alert-warning border-0 shadow-sm rounded-3" role="alert">
+            <div th:if="${#lists.isEmpty(misCursos)}" class="alert alert-warning border-0 shadow-sm rounded-3"
+                role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 Aún no tiene cursos asignados para generar reportes.
             </div>
@@ -28,19 +26,24 @@
             <div th:unless="${#lists.isEmpty(misCursos)}">
 
                 <div class="card-custom d-flex flex-row align-items-end flex-wrap gap-3">
-                    <form method="GET" th:action="@{/docente/reportes/notas}" id="formFiltroNotas" style="max-width: 380px; flex-grow: 1;">
+                    <form method="GET" th:action="@{/docente/reportes/notas}" id="formFiltroNotas"
+                        style="max-width: 380px; flex-grow: 1;">
                         <label class="form-label fw-bold text-secondary mb-1">Curso</label>
-                        <select class="form-select border-success" name="cursoId" onchange="document.getElementById('formFiltroNotas').submit()">
+                        <select class="form-select border-success" name="cursoId"
+                            onchange="document.getElementById('formFiltroNotas').submit()">
                             <option th:each="c : ${misCursos}" th:value="${c.idCurso}"
                                 th:text="${c.nombreCurso} + ' - Sec. ' + ${c.seccion}"
                                 th:selected="${cursoSeleccionado != null and c.idCurso == cursoSeleccionado.idCurso}">
                             </option>
                         </select>
+
                     </form>
                     <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
                         <i class="bi bi-printer me-2"></i>Imprimir
                     </button>
+
                 </div>
+
 
                 <div class="card-custom p-0 overflow-hidden">
                     <div class="p-4 border-bottom bg-light">
@@ -51,13 +54,17 @@
                         </h5>
                     </div>
 
+
                     <div th:if="${#lists.isEmpty(evaluacionesActivas)}" class="p-4 text-muted text-center">
-                        <i class="bi bi-info-circle me-1"></i> Este curso todavía no tiene evaluaciones activas registradas.
+                        <i class="bi bi-info-circle me-1"></i> Este curso todavía no tiene evaluaciones activas
+                        registradas.
                     </div>
+
 
                     <div class="table-responsive" th:unless="${#lists.isEmpty(evaluacionesActivas)}">
                         <table class="table table-custom mb-0 text-center align-middle">
                             <thead>
+
                                 <tr>
                                     <th rowspan="2" width="4%" class="align-middle">Nº</th>
                                     <th rowspan="2" width="26%" class="text-start align-middle">Alumno</th>
@@ -65,50 +72,66 @@
                                     <th rowspan="2" width="10%" class="align-middle">Promedio</th>
                                     <th rowspan="2" width="12%" class="align-middle">Estado</th>
                                 </tr>
+
                                 <tr>
                                     <th th:each="ev : ${evaluacionesActivas}"
                                         th:text="${ev.nombre} + ' (' + ${ev.pesoPorcentual} + '%)'">E1 (20%)</th>
                                 </tr>
+
                             </thead>
+
                             <tbody>
                                 <tr th:if="${#lists.isEmpty(filas)}">
-                                    <td th:colspan="${4 + #lists.size(evaluacionesActivas)}" class="text-center py-4 text-muted">
+                                    <td th:colspan="${4 + #lists.size(evaluacionesActivas)}"
+                                        class="text-center py-4 text-muted">
                                         No hay alumnos en esta sección.
                                     </td>
+
                                 </tr>
                                 <tr th:each="fila, stat : ${filas}">
                                     <td class="fw-bold text-muted" th:text="${stat.count}">1</td>
                                     <td class="fw-bold text-dark text-start"
-                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">Apellidos, Nombres</td>
+                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">Apellidos,
+                                        Nombres</td>
                                     <td th:each="valor : ${fila.valores}">
                                         <span th:if="${valor != null}" th:text="${valor}">18</span>
                                         <span th:unless="${valor != null}" class="text-muted">--</span>
                                     </td>
+
                                     <td class="fw-bold fs-6">
                                         <span th:if="${fila.promedio != null}" th:text="${fila.promedio}">17.60</span>
                                         <span th:unless="${fila.promedio != null}" class="text-muted">--</span>
                                     </td>
+
                                     <td>
                                         <span th:if="${fila.estado == 'Aprobado'}" class="badge rounded-pill px-3 py-2"
                                             style="background-color:#dcfce7; color:#15803d;">Aprobado</span>
-                                        <span th:if="${fila.estado == 'En proceso'}" class="badge rounded-pill px-3 py-2"
+                                        <span th:if="${fila.estado == 'En proceso'}"
+                                            class="badge rounded-pill px-3 py-2"
                                             style="background-color:#fef3c7; color:#b45309;">En proceso</span>
                                         <span th:if="${fila.estado == 'En inicio'}" class="badge rounded-pill px-3 py-2"
                                             style="background-color:#fee2e2; color:#b91c1c;">En inicio</span>
-                                        <span th:if="${fila.estado == 'Sin notas'}" class="badge rounded-pill px-3 py-2 bg-light text-muted border">Sin notas</span>
+                                        <span th:if="${fila.estado == 'Sin notas'}"
+                                            class="badge rounded-pill px-3 py-2 bg-light text-muted border">Sin
+                                            notas</span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
+
                     <div th:unless="${#lists.isEmpty(evaluacionesActivas)}"
                         class="d-flex flex-wrap align-items-center gap-3 p-3 border-top bg-light">
                         <span class="fw-semibold text-secondary small">Leyenda:</span>
-                        <span class="badge rounded-pill px-3 py-2" style="background-color:#dcfce7; color:#15803d;">Aprobado (&ge; 14)</span>
-                        <span class="badge rounded-pill px-3 py-2" style="background-color:#fef3c7; color:#b45309;">En proceso (11 - 13)</span>
-                        <span class="badge rounded-pill px-3 py-2" style="background-color:#fee2e2; color:#b91c1c;">En inicio (&le; 10)</span>
+                        <span class="badge rounded-pill px-3 py-2"
+                            style="background-color:#dcfce7; color:#15803d;">Aprobado (&ge; 14)</span>
+                        <span class="badge rounded-pill px-3 py-2" style="background-color:#fef3c7; color:#b45309;">En
+                            proceso (11 - 13)</span>
+                        <span class="badge rounded-pill px-3 py-2" style="background-color:#fee2e2; color:#b91c1c;">En
+                            inicio (&le; 10)</span>
                     </div>
+
                 </div>
 
                 <div class="alert alert-light border d-flex align-items-center gap-2 small text-muted" role="alert">
@@ -121,9 +144,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+
         document.getElementById("sidebarToggle")?.addEventListener("click", function () {
             document.getElementById("sidebar").classList.toggle("active");
+
         });
+
     </script>
 </body>
 

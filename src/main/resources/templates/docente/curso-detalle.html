@@ -1,49 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{docente/fragmentos :: head('Detalle de Curso')}"></head>
 
 <body>
-
     <nav th:replace="~{docente/fragmentos :: sidebar('cursos', true)}"></nav>
 
     <div id="content">
-
         <nav th:replace="~{docente/fragmentos :: navbar(${nombreDocente}, true)}"></nav>
 
         <div class="dashboard-content">
-
             <div class="d-flex justify-content-between align-items-end mb-4">
                 <div>
                     <h2 class="fw-bold text-dark mb-1">
                         <span th:text="${curso.nombreCurso}">Nombre del Curso</span>
                         <span class="badge bg-success ms-2 fs-6" th:text="'Sección ' + ${curso.seccion}">A</span>
                     </h2>
-                    <p class="text-muted mb-0">Gestión de Evaluaciones y Control de Asistencia.</p>
+                    <p class="text-muted mb-0">
+                        Gestión de Evaluaciones y Control de Asistencia.
+                    </p>
                 </div>
             </div>
 
             <div th:if="${param.exito}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i> ¡Datos guardados exitosamente!
+                <i class="bi bi-check-circle-fill me-2"></i> ¡Datos guardados
+                exitosamente!
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             <div th:if="${param.eliminado}" class="alert alert-warning alert-dismissible fade show shadow-sm"
                 role="alert">
-                <i class="bi bi-trash-fill me-2"></i> ¡Registro eliminado u ocultado correctamente!
+                <i class="bi bi-trash-fill me-2"></i> ¡Registro eliminado u ocultado
+                correctamente!
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
             <div id="vista-evaluaciones" class="vista-seccion activa">
                 <div class="card-custom d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <form method="GET" th:action="@{/docente/curso/{id}(id=${curso.idCurso})}" id="formFiltro"
-                        class="flex-grow-1" style="max-width: 400px;">
+                        class="flex-grow-1" style="max-width: 400px">
                         <label class="form-label fw-bold text-secondary mb-1">Seleccione Evaluación:</label>
-                        <div th:if="${#lists.isEmpty(evaluacionesActivas)}" class="text-muted small">No hay evaluaciones
-                            activas.</div>
+                        <div th:if="${#lists.isEmpty(evaluacionesActivas)}" class="text-muted small">
+                            No hay evaluaciones activas.
+                        </div>
                         <select th:unless="${#lists.isEmpty(evaluacionesActivas)}" class="form-select border-success"
                             name="evaluacionId" onchange="document.getElementById('formFiltro').submit()">
                             <option th:each="ev : ${evaluacionesActivas}" th:value="${ev.idEvaluacion}"
-                                th:text="${ev.nombre} + ' (' + ev.pesoPorcentual + '%)'"
+                                th:text="|${ev.nombre} (${ev.pesoPorcentual}%)|"
                                 th:selected="${evaluacionSeleccionada != null and ev.idEvaluacion == evaluacionSeleccionada.idEvaluacion}">
                             </option>
                         </select>
@@ -68,16 +70,22 @@
                         <div th:if="${evaluacionSeleccionada != null}" class="d-flex gap-2">
                             <form
                                 th:action="@{/docente/curso/{id}/evaluacion/{idEval}/desactivar(id=${curso.idCurso}, idEval=${evaluacionSeleccionada.idEvaluacion})}"
-                                method="POST"
-                                onsubmit="return confirm('¿Archivar esta evaluación? Los datos se ocultan pero no se borran.');">
+                                method="POST" onsubmit="
+                    return confirm(
+                      '¿Archivar esta evaluación? Los datos se ocultan pero no se borran.',
+                    );
+                  ">
                                 <button type="submit" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-archive"></i> Ocultar
                                 </button>
                             </form>
                             <form
                                 th:action="@{/docente/curso/{id}/evaluacion/{idEval}/eliminar(id=${curso.idCurso}, idEval=${evaluacionSeleccionada.idEvaluacion})}"
-                                method="POST"
-                                onsubmit="return confirm('ATENCIÓN: ¿Eliminar esta evaluación? Se borrarán las notas de forma permanente.');">
+                                method="POST" onsubmit="
+                    return confirm(
+                      'ATENCIÓN: ¿Eliminar esta evaluación? Se borrarán las notas de forma permanente.',
+                    );
+                  ">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="bi bi-trash"></i> Eliminar
                                 </button>
@@ -98,14 +106,18 @@
                             </thead>
                             <tbody>
                                 <tr th:if="${#lists.isEmpty(filasAlumnos)}">
-                                    <td colspan="5" class="text-center py-4 text-muted">No hay alumnos en esta sección.
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        No hay alumnos en esta sección.
                                     </td>
                                 </tr>
                                 <tr th:each="fila, stat : ${filasAlumnos}">
-                                    <td class="fw-bold text-muted" th:text="${stat.count}">1</td>
+                                    <td class="fw-bold text-muted" th:text="${stat.count}">
+                                        1
+                                    </td>
                                     <td th:text="${fila.alumno.codigo}">AL0001</td>
                                     <td class="fw-bold text-dark"
-                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">Pérez, Juan
+                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">
+                                        Pérez, Juan
                                     </td>
                                     <td class="text-center fs-5 fw-bold">
                                         <span th:if="${fila.nota != null}" th:text="${fila.nota.valor}"
@@ -135,7 +147,9 @@
                 <div class="card-custom p-0 overflow-hidden">
                     <div
                         class="p-4 border-bottom bg-light d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <h5 class="m-0 fw-bold text-dark">Control de Asistencia Global</h5>
+                        <h5 class="m-0 fw-bold text-dark">
+                            Control de Asistencia Global
+                        </h5>
                         <div class="d-flex gap-2">
                             <span class="text-muted small align-self-center">Acumulado del ciclo escolar</span>
                         </div>
@@ -156,11 +170,15 @@
                             </thead>
                             <tbody>
                                 <tr th:each="fila, stat : ${filasAlumnos}">
-                                    <td class="fw-bold text-muted text-center align-middle" th:text="${stat.count}">1
+                                    <td class="fw-bold text-muted text-center align-middle" th:text="${stat.count}">
+                                        1
                                     </td>
-                                    <td class="align-middle" th:text="${fila.alumno.codigo}">AL0001</td>
+                                    <td class="align-middle" th:text="${fila.alumno.codigo}">
+                                        AL0001
+                                    </td>
                                     <td class="fw-bold text-dark text-start align-middle"
-                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">Pérez, Juan
+                                        th:text="${fila.alumno.apellidos} + ', ' + ${fila.alumno.nombres}">
+                                        Pérez, Juan
                                     </td>
 
                                     <td class="text-center align-middle">
@@ -192,15 +210,16 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <div class="modal fade" id="modalCrearEvaluacion" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header" style="background-color: var(--primary-color); color: white;">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-journal-plus me-2"></i>Nueva Evaluación</h5>
+                <div class="modal-header" style="background-color: var(--primary-color); color: white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-journal-plus me-2"></i>Nueva Evaluación
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form th:action="@{/docente/curso/{id}/evaluacion(id=${curso.idCurso})}" method="POST">
@@ -208,7 +227,7 @@
                         <div class="mb-3">
                             <label class="form-label text-dark fw-bold">Nombre de la Evaluación</label>
                             <input type="text" class="form-control" name="nombre" required
-                                placeholder="Ej. Examen Parcial 1">
+                                placeholder="Ej. Examen Parcial 1" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-dark fw-bold">Tipo</label>
@@ -222,21 +241,26 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-dark fw-bold">Fecha</label>
-                                <input type="date" class="form-control" name="fecha" required>
+                                <input type="date" class="form-control" name="fecha" id="inputFechaEvaluacion"
+                                    required />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-dark fw-bold">Peso (%)</label>
                                 <div class="input-group">
                                     <input type="number" step="0.01" min="0" max="100" class="form-control"
-                                        name="pesoPorcentual" required>
+                                        name="pesoPorcentual" required />
                                     <span class="input-group-text">%</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-green">Guardar Evaluación</button>
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-green">
+                            Guardar Evaluación
+                        </button>
                     </div>
                 </form>
             </div>
@@ -247,14 +271,16 @@
         <div class="modal-dialog modal-sm">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i>Calificación</h5>
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-award me-2"></i>Calificación
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form th:action="@{/docente/curso/{id}/nota(id=${curso.idCurso})}" method="POST">
                     <div class="modal-body p-4 text-center">
-                        <input type="hidden" id="modalNotaAlumnoId" name="idAlumno">
+                        <input type="hidden" id="modalNotaAlumnoId" name="idAlumno" />
                         <input type="hidden" name="idEvaluacion"
-                            th:value="${evaluacionSeleccionada != null ? evaluacionSeleccionada.idEvaluacion : ''}">
+                            th:value="${evaluacionSeleccionada != null ? evaluacionSeleccionada.idEvaluacion : ''}" />
 
                         <p class="text-muted small mb-1">Estudiante</p>
                         <h6 id="modalNotaAlumnoNombre" class="fw-bold text-dark mb-4"></h6>
@@ -263,12 +289,14 @@
                             <label class="fw-bold text-success mb-2">Ingrese la Nota</label>
                             <input type="number" step="0.01" min="0" max="20"
                                 class="form-control form-control-lg text-center fw-bold text-primary shadow-sm"
-                                id="inputValorNota" name="valor" placeholder="Ej. 15" required>
+                                id="inputValorNota" name="valor" placeholder="Ej. 15" required />
                         </div>
                     </div>
                     <div class="modal-footer p-0">
                         <button type="submit" class="btn btn-success w-100 m-0 py-3 rounded-bottom"
-                            style="border-radius: 0;">Guardar Nota</button>
+                            style="border-radius: 0">
+                            Guardar Nota
+                        </button>
                     </div>
                 </form>
             </div>
@@ -278,13 +306,15 @@
     <div class="modal fade" id="modalAsistencia" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header" style="background-color: #f59e0b; color: white;">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-calendar-event me-2"></i>Asistencia Diaria</h5>
+                <div class="modal-header" style="background-color: #f59e0b; color: white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-calendar-event me-2"></i>Asistencia Diaria
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form th:action="@{/docente/curso/{id}/asistencia(id=${curso.idCurso})}" method="POST">
                     <div class="modal-body p-4">
-                        <input type="hidden" id="modalAsistenciaAlumnoId" name="idAlumno">
+                        <input type="hidden" id="modalAsistenciaAlumnoId" name="idAlumno" />
 
                         <p class="text-muted small mb-1">Registro para el estudiante:</p>
                         <h6 id="modalAsistenciaAlumnoNombre" class="fw-bold text-dark mb-4"></h6>
@@ -292,7 +322,7 @@
                         <div class="mb-3">
                             <label class="form-label text-dark fw-bold">Seleccione el Día/Mes a Editar:</label>
                             <input type="date" class="form-control border-warning" name="fecha"
-                                id="inputFechaAsistencia" required>
+                                id="inputFechaAsistencia" required />
                         </div>
 
                         <div class="mb-3">
@@ -302,14 +332,19 @@
                                 <option value="FALTA">Faltó</option>
                                 <option value="TARDANZA">Tardanza</option>
                                 <option value="FALTA_JUSTIFICADA">Falta Justificada</option>
-                                <option value="ELIMINAR" class="text-danger fw-bold">Eliminar registro de este día
+                                <option value="ELIMINAR" class="text-danger fw-bold">
+                                    Eliminar registro de este día
                                 </option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Asistencia</button>
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold">
+                            Guardar Asistencia
+                        </button>
                     </div>
                 </form>
             </div>
@@ -342,6 +377,22 @@
             document.getElementById('modalAsistenciaAlumnoId').value = id;
             document.getElementById('modalAsistenciaAlumnoNombre').textContent = nombre;
             document.getElementById('inputFechaAsistencia').valueAsDate = new Date();
+        }
+
+        const fechaActual = new Date();
+        fechaActual.setMinutes(fechaActual.getMinutes() - fechaActual.getTimezoneOffset());
+        const hoy = fechaActual.toISOString().split('T')[0];
+
+        const inputFechaEvaluacion = document.getElementById("inputFechaEvaluacion");
+        if (inputFechaEvaluacion) {
+            inputFechaEvaluacion.setAttribute('min', hoy);
+        }
+
+        const inputFechaAsistencia = document.getElementById("inputFechaAsistencia");
+        if (inputFechaAsistencia) {
+            inputFechaAsistencia.setAttribute('min', hoy);
+            inputFechaAsistencia.setAttribute('max', hoy);
+
         }
     </script>
 </body>
