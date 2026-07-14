@@ -16,24 +16,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/login", "/error").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/docente/**").hasRole("DOCENTE")
-                .requestMatchers("/alumno/**").hasRole("ALUMNO")
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login") 
-                .successHandler(customSuccessHandler()) 
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-            );
-            
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/css/**", "/js/**", "/login", "/error").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/docente/**").hasRole("DOCENTE")
+                        .requestMatchers("/alumno/**").hasRole("ALUMNO")
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler(customSuccessHandler())
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll());
+
         return http.build();
     }
 
@@ -41,13 +38,13 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler customSuccessHandler() {
         return (request, response, authentication) -> {
             var roles = authentication.getAuthorities();
-            
+
             if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
                 response.sendRedirect("/admin/panel");
             } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_DOCENTE"))) {
                 response.sendRedirect("/docente/panel");
             } else {
-                response.sendRedirect("/alumno/mis-notas");
+                response.sendRedirect("/alumno/dashboard");
             }
         };
     }

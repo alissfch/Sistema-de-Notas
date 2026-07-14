@@ -11,6 +11,8 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Nota;
 
 @Repository
 public interface NotaRepository extends JpaRepository<Nota, Integer> {
-        @Query("SELECT n FROM Nota n JOIN n.alumno a WHERE a.codigo = :codigoAlumno")
+    @Query("SELECT n FROM Nota n JOIN n.alumno a WHERE a.codigo = :codigoAlumno")
     List<Nota> findNotasPorCodigoAlumno(@Param("codigoAlumno") String codigoAlumno);
+
+    long countByCorregidaTrue();
 }

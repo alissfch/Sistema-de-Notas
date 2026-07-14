@@ -29,7 +29,6 @@ public class Nota {
     @JoinColumn(name = "id_evaluacion", nullable = false)
     private Evaluacion evaluacion;
 
-    // Define la estructura exacta decimal(4,2) de MySQL
     @Column(precision = 4, scale = 2, nullable = false)
     private BigDecimal valor;
 
@@ -38,24 +37,65 @@ public class Nota {
     @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
 
-    public Nota() {}
+    @Column(nullable = false)
+    private boolean corregida = false;
 
-    // --- GETTERS Y SETTERS ---
-    public Integer getIdNota() { return idNota; }
-    public void setIdNota(Integer idNota) { this.idNota = idNota; }
+    public Nota() {
+    }
 
-    public Alumno getAlumno() { return alumno; }
-    public void setAlumno(Alumno alumno) { this.alumno = alumno; }
+    public Integer getIdNota() {
+        return idNota;
+    }
 
-    public Evaluacion getEvaluacion() { return evaluacion; }
-    public void setEvaluacion(Evaluacion evaluacion) { this.evaluacion = evaluacion; }
+    public void setIdNota(Integer idNota) {
+        this.idNota = idNota;
+    }
 
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
+    public Alumno getAlumno() {
+        return alumno;
+    }
 
-    public String getObservacion() { return observacion; }
-    public void setObservacion(String observacion) { this.observacion = observacion; }
+    public void setAlumno(Alumno alumno) {
+        this.alumno = alumno;
+    }
 
-    public LocalDate getFechaRegistro() { return fechaRegistro; }
-    public void setFechaRegistro(LocalDate fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    public Evaluacion getEvaluacion() {
+        return evaluacion;
+    }
+
+    public void setEvaluacion(Evaluacion evaluacion) {
+        this.evaluacion = evaluacion;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    public LocalDate getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public boolean isCorregida() {
+        return corregida;
+    }
+
+    public void setCorregida(boolean corregida) {
+        this.corregida = corregida;
+    }
 }

@@ -20,6 +20,7 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Alumno;
 import com.integrador.SistemaDeNotas.modelo.entidades.Asistencia;
 import com.integrador.SistemaDeNotas.modelo.entidades.Curso;
 import com.integrador.SistemaDeNotas.modelo.entidades.Docente;
+import com.integrador.SistemaDeNotas.modelo.entidades.EncuestaDocente;
 import com.integrador.SistemaDeNotas.modelo.entidades.Evaluacion;
 import com.integrador.SistemaDeNotas.modelo.entidades.Evaluacion.TipoEvaluacion;
 import com.integrador.SistemaDeNotas.modelo.entidades.Nota;
@@ -27,6 +28,7 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Usuario;
 import com.integrador.SistemaDeNotas.repositorio.AlumnoRepository;
 import com.integrador.SistemaDeNotas.repositorio.AsistenciaRepository;
 import com.integrador.SistemaDeNotas.repositorio.CursoRepository;
+import com.integrador.SistemaDeNotas.repositorio.EncuestaDocenteRepository;
 import com.integrador.SistemaDeNotas.repositorio.EvaluacionRepository;
 import com.integrador.SistemaDeNotas.repositorio.NotaRepository;
 import com.integrador.SistemaDeNotas.repositorio.UsuarioRepository;
@@ -34,12 +36,20 @@ import com.integrador.SistemaDeNotas.repositorio.UsuarioRepository;
 @Controller
 public class DocenteControlador {
 
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private EvaluacionRepository evaluacionRepository;
-    @Autowired private CursoRepository cursoRepository;
-    @Autowired private AlumnoRepository alumnoRepository;
-    @Autowired private NotaRepository notaRepository;
-    @Autowired private AsistenciaRepository asistenciaRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    @Autowired
+    private EvaluacionRepository evaluacionRepository;
+    @Autowired
+    private CursoRepository cursoRepository;
+    @Autowired
+    private AlumnoRepository alumnoRepository;
+    @Autowired
+    private NotaRepository notaRepository;
+    @Autowired
+    private AsistenciaRepository asistenciaRepository;
+    @Autowired
+    private EncuestaDocenteRepository encuestaDocenteRepository;
 
     @GetMapping("/docente/panel")
     public String mostrarPanelDocente(Model model, Principal principal) {
@@ -47,8 +57,9 @@ public class DocenteControlador {
         Docente miDocente = usuario.getDocente();
 
         if (miDocente != null) {
-             model.addAttribute("misCursos", miDocente.getCursosAsignados());
-             model.addAttribute("nombreDocente", usuario.getNombre() + " " + usuario.getApellido());
+            model.addAttribute("misCursos", miDocente.getCursosAsignados());
+            model.addAttribute("nombreDocente", usuario.getNombre() + " " + usuario.getApellido());
+            model.addAttribute("yaEncuestado", encuestaDocenteRepository.existsByDocente(miDocente));
         } else {
             return "redirect:/login?error=No se encontró el docente asociado a este usuario.";
         }
@@ -56,24 +67,26 @@ public class DocenteControlador {
     }
 
     @GetMapping("/docente/curso/{id}")
-    public String gestionarCurso(@PathVariable Integer id, 
-                                  @RequestParam(required = false) Integer evaluacionId, 
-                                  Model model, Principal principal) {
-        
+    public String gestionarCurso(@PathVariable Integer id,
+            @RequestParam(required = false) Integer evaluacionId,
+            Model model, Principal principal) {
+
         Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
         Docente miDocente = usuario.getDocente();
         Curso curso = cursoRepository.findById(id).orElse(null);
 
-        if (curso == null) { return "redirect:/docente/panel?error=CursoNoEncontrado"; }
+        if (curso == null) {
+            return "redirect:/docente/panel?error=CursoNoEncontrado";
+        }
         if (!curso.getDocente().getId_docente().equals(miDocente.getId_docente())) {
-            return "redirect:/docente/panel?error=AccesoDenegado"; 
+            return "redirect:/docente/panel?error=AccesoDenegado";
         }
 
         List<Evaluacion> evaluacionesActivas = new ArrayList<>();
         if (curso.getEvaluaciones() != null) {
             evaluacionesActivas = curso.getEvaluaciones().stream()
-                .filter(e -> e != null && e.isEstado())
-                .collect(Collectors.toList());
+                    .filter(e -> e != null && e.isEstado())
+                    .collect(Collectors.toList());
         }
 
         Evaluacion evalSeleccionada = null;
@@ -112,21 +125,23 @@ public class DocenteControlador {
         filasAlumnos.sort((f1, f2) -> f1.getAlumno().getApellidos().compareToIgnoreCase(f2.getAlumno().getApellidos()));
 
         model.addAttribute("curso", curso);
-        model.addAttribute("evaluacionesActivas", evaluacionesActivas); 
+        model.addAttribute("evaluacionesActivas", evaluacionesActivas);
         model.addAttribute("evaluacionSeleccionada", evalSeleccionada);
-        model.addAttribute("filasAlumnos", filasAlumnos); 
+        model.addAttribute("filasAlumnos", filasAlumnos);
         model.addAttribute("nombreDocente", usuario.getNombre() + " " + usuario.getApellido());
 
-        return "docente/curso-detalle"; 
+        return "docente/curso-detalle";
     }
 
     @PostMapping("/docente/curso/{id}/evaluacion")
     public String crearEvaluacion(@PathVariable Integer id, @RequestParam String nombre,
-                                  @RequestParam String tipo, @RequestParam String fecha,
-                                  @RequestParam BigDecimal pesoPorcentual) {
+            @RequestParam String tipo, @RequestParam String fecha,
+            @RequestParam BigDecimal pesoPorcentual) {
         Curso curso = cursoRepository.findById(id).orElse(null);
-        if (curso == null) { return "redirect:/docente/panel?error=CursoNoEncontrado"; }
-        
+        if (curso == null) {
+            return "redirect:/docente/panel?error=CursoNoEncontrado";
+        }
+
         Evaluacion nuevaEvaluacion = new Evaluacion();
         nuevaEvaluacion.setNombre(nombre);
         nuevaEvaluacion.setTipo(TipoEvaluacion.valueOf(tipo));
@@ -143,7 +158,7 @@ public class DocenteControlador {
     public String desactivarEvaluacion(@PathVariable Integer id, @PathVariable Integer idEval) {
         Evaluacion eval = evaluacionRepository.findById(idEval).orElse(null);
         if (eval != null) {
-            eval.setEstado(false); 
+            eval.setEstado(false);
             evaluacionRepository.save(eval);
         }
         return "redirect:/docente/curso/" + id + "?eliminado";
@@ -151,20 +166,20 @@ public class DocenteControlador {
 
     @PostMapping("/docente/curso/{id}/evaluacion/{idEval}/eliminar")
     public String eliminarEvaluacionFisica(@PathVariable Integer id, @PathVariable Integer idEval) {
-        evaluacionRepository.deleteById(idEval); 
+        evaluacionRepository.deleteById(idEval);
         return "redirect:/docente/curso/" + id + "?eliminado";
     }
 
     @PostMapping("/docente/curso/{id}/nota")
-    public String registrarNota(@PathVariable Integer id, 
-                                @RequestParam Integer idAlumno, 
-                                @RequestParam Integer idEvaluacion, 
-                                @RequestParam(required = false) BigDecimal valor) {
-        
+    public String registrarNota(@PathVariable Integer id,
+            @RequestParam Integer idAlumno,
+            @RequestParam Integer idEvaluacion,
+            @RequestParam(required = false) BigDecimal valor) {
+
         Alumno alumno = alumnoRepository.findById(idAlumno).orElse(null);
         Evaluacion evaluacion = evaluacionRepository.findById(idEvaluacion).orElse(null);
 
-        if(alumno != null && evaluacion != null) {
+        if (alumno != null && evaluacion != null) {
             Nota notaExistente = null;
             if (alumno.getNotas() != null) {
                 for (Nota n : alumno.getNotas()) {
@@ -181,6 +196,8 @@ public class DocenteControlador {
                     notaExistente.setAlumno(alumno);
                     notaExistente.setEvaluacion(evaluacion);
                     notaExistente.setFechaRegistro(LocalDate.now());
+                } else {
+                    notaExistente.setCorregida(true);
                 }
                 notaExistente.setValor(valor);
                 notaRepository.save(notaExistente);
@@ -191,16 +208,16 @@ public class DocenteControlador {
 
     @PostMapping("/docente/curso/{id}/asistencia")
     public String gestionarAsistencia(@PathVariable Integer id,
-                                      @RequestParam Integer idAlumno,
-                                      @RequestParam String fecha,
-                                      @RequestParam String estado) {
-        
+            @RequestParam Integer idAlumno,
+            @RequestParam String fecha,
+            @RequestParam String estado) {
+
         LocalDate fechaAsistencia = LocalDate.parse(fecha);
         Curso curso = cursoRepository.findById(id).orElse(null);
         Alumno alumno = alumnoRepository.findById(idAlumno).orElse(null);
 
         if (curso != null && alumno != null) {
-            
+
             Asistencia asistenciaExistente = null;
             if (alumno.getAsistencias() != null) {
                 for (Asistencia a : alumno.getAsistencias()) {
@@ -235,12 +252,16 @@ public class DocenteControlador {
         Docente miDocente = usuario.getDocente();
 
         List<Curso> misCursos = (miDocente != null && miDocente.getCursosAsignados() != null)
-                ? miDocente.getCursosAsignados() : new ArrayList<>();
+                ? miDocente.getCursosAsignados()
+                : new ArrayList<>();
 
         Curso cursoSeleccionado = null;
         if (cursoId != null) {
             for (Curso c : misCursos) {
-                if (c.getIdCurso().equals(cursoId)) { cursoSeleccionado = c; break; }
+                if (c.getIdCurso().equals(cursoId)) {
+                    cursoSeleccionado = c;
+                    break;
+                }
             }
         }
         if (cursoSeleccionado == null && !misCursos.isEmpty()) {
@@ -310,21 +331,45 @@ public class DocenteControlador {
     }
 
     @GetMapping("/docente/reportes/asistencia")
-    public String reporteAsistencia(@RequestParam(required = false) Integer cursoId, Model model, Principal principal) {
+    public String reporteAsistencia(
+            @RequestParam(required = false) Integer cursoId,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            Model model, Principal principal) {
+
         Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
         Docente miDocente = usuario.getDocente();
 
         List<Curso> misCursos = (miDocente != null && miDocente.getCursosAsignados() != null)
-                ? miDocente.getCursosAsignados() : new ArrayList<>();
+                ? miDocente.getCursosAsignados()
+                : new ArrayList<>();
 
         Curso cursoSeleccionado = null;
         if (cursoId != null) {
             for (Curso c : misCursos) {
-                if (c.getIdCurso().equals(cursoId)) { cursoSeleccionado = c; break; }
+                if (c.getIdCurso().equals(cursoId)) {
+                    cursoSeleccionado = c;
+                    break;
+                }
             }
         }
         if (cursoSeleccionado == null && !misCursos.isEmpty()) {
             cursoSeleccionado = misCursos.get(0);
+        }
+        LocalDate fInicio = null;
+        LocalDate fFin = null;
+
+        if (fechaInicio != null && !fechaInicio.isEmpty()) {
+            fInicio = LocalDate.parse(fechaInicio);
+        }
+        if (fechaFin != null && !fechaFin.isEmpty()) {
+            fFin = LocalDate.parse(fechaFin);
+        }
+
+        if (fInicio != null && fFin != null && fInicio.isAfter(fFin)) {
+            model.addAttribute("errorFecha", "La fecha de inicio no puede ser mayor a la fecha de fin.");
+            fInicio = null;
+            fFin = null;
         }
 
         List<FilaReporteAsistenciaDTO> filas = new ArrayList<>();
@@ -340,6 +385,12 @@ public class DocenteControlador {
                         if (a.getCurso() == null || !a.getCurso().getIdCurso().equals(cursoSeleccionado.getIdCurso())) {
                             continue;
                         }
+
+                        if (fInicio != null && a.getFecha().isBefore(fInicio))
+                            continue;
+                        if (fFin != null && a.getFecha().isAfter(fFin))
+                            continue;
+
                         switch (a.getEstado()) {
                             case ASISTIO -> asistio++;
                             case TARDANZA -> tardanza++;
@@ -352,6 +403,7 @@ public class DocenteControlador {
                 int total = asistio + tardanza + falta + justificada;
                 BigDecimal porcentaje = null;
                 String estado = "Sin registros";
+
                 if (total > 0) {
                     BigDecimal efectivas = BigDecimal.valueOf(asistio + tardanza);
                     porcentaje = efectivas.multiply(BigDecimal.valueOf(100))
@@ -365,7 +417,8 @@ public class DocenteControlador {
                     }
                 }
 
-                filas.add(new FilaReporteAsistenciaDTO(alumno, asistio, tardanza, falta, justificada, total, porcentaje, estado));
+                filas.add(new FilaReporteAsistenciaDTO(alumno, asistio, tardanza, falta, justificada, total, porcentaje,
+                        estado));
             }
         }
 
@@ -374,7 +427,25 @@ public class DocenteControlador {
         model.addAttribute("filas", filas);
         model.addAttribute("nombreDocente", usuario.getNombre() + " " + usuario.getApellido());
 
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
+
         return "docente/reporte-asistencia";
+    }
+
+    @PostMapping("/docente/encuesta")
+    public String registrarEncuesta(@RequestParam Integer calificacion, Principal principal) {
+        Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
+        Docente miDocente = usuario.getDocente();
+
+        if (miDocente != null && !encuestaDocenteRepository.existsByDocente(miDocente)) {
+            EncuestaDocente encuesta = new EncuestaDocente();
+            encuesta.setDocente(miDocente);
+            encuesta.setCalificacion(calificacion);
+            encuesta.setFechaRespuesta(LocalDate.now());
+            encuestaDocenteRepository.save(encuesta);
+        }
+        return "redirect:/docente/panel?exitoEncuesta";
     }
 
     public static class FilaReporteNotaDTO {
@@ -389,10 +460,22 @@ public class DocenteControlador {
             this.promedio = promedio;
             this.estado = estado;
         }
-        public Alumno getAlumno() { return alumno; }
-        public List<BigDecimal> getValores() { return valores; }
-        public BigDecimal getPromedio() { return promedio; }
-        public String getEstado() { return estado; }
+
+        public Alumno getAlumno() {
+            return alumno;
+        }
+
+        public List<BigDecimal> getValores() {
+            return valores;
+        }
+
+        public BigDecimal getPromedio() {
+            return promedio;
+        }
+
+        public String getEstado() {
+            return estado;
+        }
     }
 
     public static class FilaReporteAsistenciaDTO {
@@ -406,7 +489,7 @@ public class DocenteControlador {
         private final String estado;
 
         public FilaReporteAsistenciaDTO(Alumno alumno, int asistio, int tardanza, int falta, int justificada,
-                                         int total, BigDecimal porcentaje, String estado) {
+                int total, BigDecimal porcentaje, String estado) {
             this.alumno = alumno;
             this.asistio = asistio;
             this.tardanza = tardanza;
@@ -416,14 +499,38 @@ public class DocenteControlador {
             this.porcentaje = porcentaje;
             this.estado = estado;
         }
-        public Alumno getAlumno() { return alumno; }
-        public int getAsistio() { return asistio; }
-        public int getTardanza() { return tardanza; }
-        public int getFalta() { return falta; }
-        public int getJustificada() { return justificada; }
-        public int getTotal() { return total; }
-        public BigDecimal getPorcentaje() { return porcentaje; }
-        public String getEstado() { return estado; }
+
+        public Alumno getAlumno() {
+            return alumno;
+        }
+
+        public int getAsistio() {
+            return asistio;
+        }
+
+        public int getTardanza() {
+            return tardanza;
+        }
+
+        public int getFalta() {
+            return falta;
+        }
+
+        public int getJustificada() {
+            return justificada;
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public BigDecimal getPorcentaje() {
+            return porcentaje;
+        }
+
+        public String getEstado() {
+            return estado;
+        }
     }
 
     public static class FilaAlumnoDTO {
@@ -436,8 +543,17 @@ public class DocenteControlador {
             this.nota = nota;
             this.asistencia = asistencia;
         }
-        public Alumno getAlumno() { return alumno; }
-        public Nota getNota() { return nota; }
-        public Asistencia getAsistencia() { return asistencia; }
+
+        public Alumno getAlumno() {
+            return alumno;
+        }
+
+        public Nota getNota() {
+            return nota;
+        }
+
+        public Asistencia getAsistencia() {
+            return asistencia;
+        }
     }
 }
