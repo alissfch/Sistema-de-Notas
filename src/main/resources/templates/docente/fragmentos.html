@@ -130,7 +130,7 @@
         }
 
         #content {
-            margin-left: 260px;
+            margin-left: 280px; 
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -327,54 +327,7 @@
 
 <body>
 
-    <nav id="sidebar" th:fragment="sidebar(menuActivo, enDetalleCurso)">
-        <div class="sidebar-header">
-            <h4><i class="bi bi-book-half me-2" style="color: #4ade80"></i>I.E. J.C.M.</h4>
-        </div>
-        <div class="sidebar-menu">
-            <div class="menu-section">Principal</div>
-            <a th:href="@{/docente/panel}" th:classappend="${menuActivo == 'inicio'} ? 'active' : ''">
-                <i class="bi bi-grid-1x2-fill"></i> Inicio
-            </a>
-
-            <div class="menu-section">Académico</div>
-            <a th:href="@{/docente/panel}" th:classappend="${menuActivo == 'cursos'} ? 'active' : ''">
-                <i class="bi bi-journal-bookmark-fill"></i> Mis Cursos
-            </a>
-
-            <th:block th:if="${enDetalleCurso}">
-                <a id="btn-asistencia" onclick="cambiarVista('asistencia')">
-                    <i class="bi bi-calendar-check"></i> Asistencia
-                </a>
-                <a id="btn-evaluaciones" class="active" onclick="cambiarVista('evaluaciones')">
-                    <i class="bi bi-pencil-square"></i> Evaluaciones
-                </a>
-            </th:block>
-            <th:block th:unless="${enDetalleCurso}">
-                <a th:href="@{/docente/panel}" title="Seleccione un curso primero" style="opacity: 0.5;">
-                    <i class="bi bi-calendar-check"></i> Asistencia
-                </a>
-                <a th:href="@{/docente/panel}" title="Seleccione un curso primero" style="opacity: 0.5;">
-                    <i class="bi bi-pencil-square"></i> Evaluaciones
-                </a>
-            </th:block>
-            <div class="menu-section">Reportes</div>
-            <a th:href="@{/docente/reportes/asistencia}" th:classappend="${menuActivo == 'reporte-asistencia'} ? 'active' : ''">
-                <i class="bi bi-file-earmark-bar-graph"></i> Reporte de Asistencia
-            </a>
-            <a th:href="@{/docente/reportes/notas}" th:classappend="${menuActivo == 'reporte-notas'} ? 'active' : ''">
-                <i class="bi bi-pie-chart"></i> Reporte de Notas
-            </a>
-        </div>
-        </div>
-        <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-logout">
-                    <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
-                </button>
-            </form>
-        </div>
-    </nav>
+   <div th:fragment="sidebar(menuActivo, enDetalleCurso)" th:replace="~{componentes/sidebar :: menuLateral(${menuActivo}, ${enDetalleCurso})}"></div>
 
     <nav class="top-navbar" th:fragment="navbar(nombreDocente, mostrarVolver)">
         <div class="d-flex align-items-center">

@@ -20,6 +20,7 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Evaluacion;
 import com.integrador.SistemaDeNotas.modelo.entidades.Nota;
 import com.integrador.SistemaDeNotas.repositorio.AlumnoRepository;
 import com.integrador.SistemaDeNotas.repositorio.CursoRepository;
+import com.integrador.SistemaDeNotas.repositorio.DocenteRepository;
 import com.integrador.SistemaDeNotas.repositorio.EncuestaDocenteRepository;
 import com.integrador.SistemaDeNotas.repositorio.EvaluacionRepository;
 import com.integrador.SistemaDeNotas.repositorio.NotaRepository;
@@ -40,6 +41,8 @@ public class VistasControlador {
     private EvaluacionRepository evaluacionRepository;
     @Autowired
     private EncuestaDocenteRepository encuestaDocenteRepository;
+    @Autowired
+    private DocenteRepository docenteRepository;
 
     @GetMapping("/login")
     public String mostrarLogin() {
@@ -98,7 +101,6 @@ public class VistasControlador {
         return "admin/reporte-eliminados";
     }
 
-    // 1. DTO Estático Interno actualizado con el campo sección separado
     public static class FilaIndicadorCursoDTO {
         private final String nombreCurso;
         private final String seccion;
@@ -363,13 +365,13 @@ public class VistasControlador {
             porcentajeSatisfaccion = new BigDecimal(porcentajeSat).setScale(2, RoundingMode.HALF_UP);
 
             if (porcentajeSatisfaccion.compareTo(new BigDecimal("80")) >= 0) {
-                colorBadgeSatisfaccion = "bg-success"; // Verde (>= 80%)
+                colorBadgeSatisfaccion = "bg-success";
                 estadoTextoSatisfaccion = "Óptimo";
             } else if (porcentajeSatisfaccion.compareTo(new BigDecimal("60")) >= 0) {
-                colorBadgeSatisfaccion = "bg-warning text-dark"; // Amarillo (60% - 79%)
+                colorBadgeSatisfaccion = "bg-warning text-dark";
                 estadoTextoSatisfaccion = "Aceptable";
             } else {
-                colorBadgeSatisfaccion = "bg-danger"; // Rojo (< 60%)
+                colorBadgeSatisfaccion = "bg-danger";
                 estadoTextoSatisfaccion = "Crítico";
             }
         }
@@ -381,5 +383,35 @@ public class VistasControlador {
         model.addAttribute("estadoTextoSatisfaccion", estadoTextoSatisfaccion);
 
         return "admin/indicadores";
+    }
+
+    @GetMapping("/admin/reportes/estadisticas")
+    public String mostrarEstadisticas(Model model) {
+        List<Curso> cursos = cursoRepository.findAll();
+        List<Nota> todasLasNotas = notaRepository.findAll();
+        long totalDocentes = docenteRepository.count();
+        long totalAlumnos = alumnoRepository.count();
+
+        double sumaNotas = todasLasNotas.stream().mapToDouble(n -> n.getValor().doubleValue()).sum();
+        double promedioGeneral = todasLasNotas.isEmpty() ? 0 : sumaNotas / todasLasNotas.size();
+
+        int aprobados = 0;
+        int desaprobados = 0;
+        int cursosConEvaluaciones = 0;
+
+        for (Curso c : cursos) {
+            if (c.getEvaluaciones() != null && !c.getEvaluaciones().isEmpty())
+                cursosConEvaluaciones++;
+        }
+
+        model.addAttribute("promedioGeneral", String.format("%.2f", promedioGeneral));
+        model.addAttribute("totalNotas", todasLasNotas.size());
+        model.addAttribute("totalCursos", cursos.size());
+        model.addAttribute("cursosConEvaluaciones", cursosConEvaluaciones);
+        model.addAttribute("cursosSinEvaluaciones", cursos.size() - cursosConEvaluaciones);
+        model.addAttribute("totalDocentes", totalDocentes);
+        model.addAttribute("totalAlumnos", totalAlumnos);
+
+        return "admin/estadisticas-academicas";
     }
 }
