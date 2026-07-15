@@ -1,34 +1,298 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Estadísticas Académicas | JCM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas Académicas - JCM</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-    </head>
-<body class="bg-light p-5">
-<div class="container bg-white p-4 rounded shadow-sm">
-    <h2 class="mb-4 text-success"><i class="bi bi-graph-up-arrow me-2"></i>Estadísticas Académicas Generales</h2>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card p-3 border-primary">
-                <h5>Rendimiento General</h5>
-                <p>Promedio: <span th:text="${promedioGeneral}">0</span></p>
-                <p>Total Notas: <span th:text="${totalNotas}">0</span></p>
+    <style>
+        :root {
+            --primary-color: #1c4b27;
+            --secondary-color: #2b7a3e;
+            --bg-color: #f4f9f4;
+        }
+
+        body {
+            font-family: "Jost", sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+        }
+
+        .top-navbar {
+            background-color: white;
+            height: 70px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+            z-index: 10;
+        }
+
+        .dashboard-container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: "Playfair Display", serif;
+            color: var(--primary-color);
+        }
+
+        .card-custom {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(28, 75, 39, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(28, 75, 39, 0.12);
+        }
+
+        .btn-logout {
+            background-color: transparent;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+        }
+        
+        .icon-blue { background-color: #e0f2fe; color: #0284c7; }
+        .icon-green { background-color: #dcfce7; color: #16a34a; }
+        .icon-purple { background-color: #f3e8ff; color: #9333ea; }
+    </style>
+</head>
+
+<body>
+
+    <div th:replace="~{componentes/sidebar :: menuLateral('reportes-estadisticas', false)}"></div>
+
+    <main class="main-content">
+        <nav class="top-navbar">
+            <form th:action="@{/logout}" method="POST" class="m-0">
+                <button type="submit" class="btn-logout">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
+            </form>
+        </nav>
+
+        <div class="dashboard-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1>Estadísticas Académicas</h1>
+                    <p class="text-muted fs-5 mb-0">Rendimiento, tasas de aprobación y disponibilidad del sistema.</p>
+                </div>
+                <a th:href="@{/admin/panel}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al Inicio
+                </a>
             </div>
-        </div>
-        </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr><th>Curso</th><th>Total Alumnos</th><th>Aprobados</th><th>Desaprobados</th><th>% Aprobación</th></tr>
-        </thead>
-        <tbody>
-            </tbody>
-    </table>
-    
-    <a th:href="@{/admin/panel}" class="btn btn-outline-secondary mt-3">Volver al Inicio</a>
-</div>
+            <div class="row g-4 mt-2 mb-4">
+                <div class="col-12">
+                    <h4 class="mb-3"><i class="bi bi-bar-chart-line text-success me-2"></i>Rendimiento Académico General</h4>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-custom p-4 d-flex flex-column">
+                        <div class="icon-wrapper icon-blue">
+                            <i class="bi bi-calculator"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2 text-dark">Promedio General</h5>
+                        <h2 class="mb-3 text-dark fw-bold" style="font-family: 'Jost', sans-serif;">
+                            <span th:text="${promedioGeneral}">0.00</span>
+                        </h2>
+                        <p class="text-muted small mb-0 mt-auto border-top pt-3">
+                            Promedio histórico de todas las evaluaciones en el sistema.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-custom p-4 d-flex flex-column">
+                        <div class="icon-wrapper icon-blue">
+                            <i class="bi bi-journal-check"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2 text-dark">Cursos Evaluados</h5>
+                        <h2 class="mb-3 text-dark fw-bold" style="font-family: 'Jost', sans-serif;">
+                            <span th:text="${cursosEvaluados}">0</span>
+                        </h2>
+                        <p class="text-muted small mb-0 mt-auto border-top pt-3">
+                            Total de cursos con progreso de calificaciones.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-custom p-4 d-flex flex-column">
+                        <div class="icon-wrapper icon-blue">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2 text-dark">Notas Registradas</h5>
+                        <h2 class="mb-3 text-dark fw-bold" style="font-family: 'Jost', sans-serif;">
+                            <span th:text="${totalNotasRegistradas}">0</span>
+                        </h2>
+                        <p class="text-muted small mb-0 mt-auto border-top pt-3">
+                            Volumen de registros en base de datos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <h4 class="mb-3"><i class="bi bi-pie-chart text-success me-2"></i>Tasa de Aprobación</h4>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-custom p-4 d-flex flex-column">
+                        <div class="icon-wrapper icon-green">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2 text-dark">Aprobación General</h5>
+                        <h2 class="mb-3 text-dark fw-bold" style="font-family: 'Jost', sans-serif;">
+                            <span th:text="${porcentajeAprobacion}">0.00</span><span class="fs-5 text-muted fw-normal">%</span>
+                        </h2>
+                        <div class="text-muted small mb-0 mt-auto border-top pt-3 d-flex justify-content-between">
+                            <span>Suma de alumnos aprobados por materia:</span>
+                            <strong th:text="${alumnosAprobados}">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card card-custom p-4 d-flex flex-column">
+                        <div class="icon-wrapper" style="background-color: #fee2e2; color: #dc2626;">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2 text-dark">Desaprobación General</h5>
+                        <h2 class="mb-3 text-dark fw-bold" style="font-family: 'Jost', sans-serif;">
+                            <span th:text="${porcentajeDesaprobacion}">0.00</span><span class="fs-5 text-muted fw-normal">%</span>
+                        </h2>
+                        <div class="text-muted small mb-0 mt-auto border-top pt-3 d-flex justify-content-between">
+                            <span>Suma de alumnos en proceso/inicio por materia:</span>
+                            <strong th:text="${alumnosDesaprobados}">0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <h4 class="mb-3"><i class="bi bi-layers text-success me-2"></i>Disponibilidad de Información</h4>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card card-custom p-3 text-center">
+                        <h3 class="fw-bold text-dark mb-0" th:text="${totalCursosRegistrados}">0</h3>
+                        <p class="text-muted small mb-0">Total Cursos</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-3 text-center">
+                        <h3 class="fw-bold text-success mb-0" th:text="${cursosEvaluados}">0</h3>
+                        <p class="text-muted small mb-0">Con Evaluaciones</p>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card card-custom p-3 text-center">
+                        <h3 class="fw-bold text-danger mb-0" th:text="${cursosSinEvaluaciones}">0</h3>
+                        <p class="text-muted small mb-0">Sin Evaluaciones</p>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card card-custom p-3 text-center">
+                        <h3 class="fw-bold text-primary mb-0" th:text="${totalDocentes}">0</h3>
+                        <p class="text-muted small mb-0">Docentes</p>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card card-custom p-3 text-center">
+                        <h3 class="fw-bold text-info mb-0" th:text="${totalAlumnos}">0</h3>
+                        <p class="text-muted small mb-0">Alumnos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-custom p-4 shadow-sm">
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-table text-success me-2"></i>Resumen Desglosado por Curso</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0 text-center small">
+                                <thead class="table-light text-secondary">
+                                    <tr>
+                                        <th class="text-start py-3" width="30%">Curso</th>
+                                        <th width="10%">Sección</th>
+                                        <th width="15%">Total Alumnos</th>
+                                        <th width="15%">Aprobados</th>
+                                        <th width="15%">Desaprobados</th>
+                                        <th width="15%">% Éxito</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${tablaCursos}">
+                                        <td class="text-start fw-bold text-dark py-2" th:text="${item.nombreCurso}">Materia</td>
+                                        <td><span class="badge bg-light text-dark border" th:text="${item.seccion}">A</span></td>
+                                        <td class="text-muted" th:text="${item.totalAlumnos}">0</td>
+                                        <td class="text-success fw-bold" th:text="${item.aprobados}">0</td>
+                                        <td class="text-danger fw-bold" th:text="${item.desaprobados}">0</td>
+                                        <td>
+                                            <span th:class="'badge ' + ${item.badgeClase} + ' px-3 py-1 shadow-sm'"
+                                                th:text="${item.porcentajeAprobados} + '%'">0.00%</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(tablaCursos)}">
+                                        <td colspan="6" class="text-center py-3 text-muted">No hay cursos registrados.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

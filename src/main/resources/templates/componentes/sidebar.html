@@ -195,26 +195,16 @@
                     <span>Indicadores KPI</span>
                 </a>
 
-                <a th:href="@{/admin/reportes/estadisticas}">
-                    <i class="bi bi-bar-chart-line-fill"></i>
-                    <span>Estadísticas Académicas</span>
-                </a>
-
                 <div class="admin-menu-section">Reportes y Auditoría</div>
-                <a th:href="@{/admin/reportes/accesos}"
-                    th:classappend="${menuActivo == 'reportes-accesos'} ? 'active' : ''">
-                    <i class="bi bi-shield-lock-fill"></i>
-                    <span>Log de Accesos</span>
-                </a>
-                <a th:href="@{/admin/reportes/registros}"
-                    th:classappend="${menuActivo == 'reportes-registros'} ? 'active' : ''">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Matrículas Activas</span>
-                </a>
                 <a th:href="@{/admin/reportes/eliminados}"
                     th:classappend="${menuActivo == 'reportes-eliminados'} ? 'active' : ''">
                     <i class="bi bi-trash3-fill"></i>
                     <span>Auditoría de Eliminados</span>
+                </a>
+                <a th:href="@{/admin/reportes/estadisticas}"
+                    th:classappend="${menuActivo == 'reportes-estadisticas'} ? 'active' : ''">
+                    <i class="bi bi-pie-chart-fill"></i>
+                    <span>Estadísticas Académicas</span>
                 </a>
             </th:block>
 

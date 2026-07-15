@@ -25,25 +25,33 @@
 
             <div th:unless="${#lists.isEmpty(misCursos)}">
 
-                <div class="card-custom d-flex flex-row align-items-end flex-wrap gap-3">
+                <div class="card-custom">
                     <form method="GET" th:action="@{/docente/reportes/notas}" id="formFiltroNotas"
-                        style="max-width: 380px; flex-grow: 1;">
-                        <label class="form-label fw-bold text-secondary mb-1">Curso</label>
-                        <select class="form-select border-success" name="cursoId"
-                            onchange="document.getElementById('formFiltroNotas').submit()">
-                            <option th:each="c : ${misCursos}" th:value="${c.idCurso}"
-                                th:text="${c.nombreCurso} + ' - Sec. ' + ${c.seccion}"
-                                th:selected="${cursoSeleccionado != null and c.idCurso == cursoSeleccionado.idCurso}">
-                            </option>
-                        </select>
+                        class="d-flex align-items-end gap-3 flex-wrap">
+
+                        <div style="min-width:350px;">
+                            <label class="form-label fw-bold text-secondary mb-1">
+                                Curso
+                            </label>
+
+                            <select class="form-select border-success" name="cursoId"
+                                onchange="document.getElementById('formFiltroNotas').submit()">
+
+                                <option th:each="c : ${misCursos}" th:value="${c.idCurso}"
+                                    th:text="${c.nombreCurso} + ' - Sec. ' + ${c.seccion}"
+                                    th:selected="${cursoSeleccionado != null and c.idCurso == cursoSeleccionado.idCurso}">
+                                </option>
+
+                            </select>
+                        </div>
+
+                        <button type="submit" name="formato" value="pdf" class="btn btn-outline-danger mb-1">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>
+                            Exportar PDF
+                        </button>
 
                     </form>
-                    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
-                        <i class="bi bi-printer me-2"></i>Imprimir
-                    </button>
-
                 </div>
-
 
                 <div class="card-custom p-0 overflow-hidden">
                     <div class="p-4 border-bottom bg-light">

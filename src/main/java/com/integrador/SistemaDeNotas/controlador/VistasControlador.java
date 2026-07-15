@@ -25,6 +25,8 @@ import com.integrador.SistemaDeNotas.repositorio.EncuestaDocenteRepository;
 import com.integrador.SistemaDeNotas.repositorio.EvaluacionRepository;
 import com.integrador.SistemaDeNotas.repositorio.NotaRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Controller
 public class VistasControlador {
 
@@ -43,6 +45,8 @@ public class VistasControlador {
     private EncuestaDocenteRepository encuestaDocenteRepository;
     @Autowired
     private DocenteRepository docenteRepository;
+    @Autowired
+    private com.integrador.SistemaDeNotas.servicio.PdfReporteServicio pdfReporteServicio;
 
     @GetMapping("/login")
     public String mostrarLogin() {
@@ -95,8 +99,18 @@ public class VistasControlador {
     }
 
     @GetMapping("/admin/reportes/eliminados")
-    public String mostrarReporteEliminados(Model model) {
+    public String mostrarReporteEliminados(@RequestParam(required = false) String formato, Model model,
+            HttpServletResponse response) {
         List<Evaluacion> eliminados = evaluacionRepository.findByEstadoFalse();
+
+        if ("pdf".equalsIgnoreCase(formato)) {
+            try {
+                pdfReporteServicio.exportarReporteEliminados(response, eliminados);
+                return null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         model.addAttribute("eliminados", eliminados);
         return "admin/reporte-eliminados";
     }
@@ -386,31 +400,139 @@ public class VistasControlador {
     }
 
     @GetMapping("/admin/reportes/estadisticas")
-    public String mostrarEstadisticas(Model model) {
-        List<Curso> cursos = cursoRepository.findAll();
+    public String mostrarEstadisticasAcademicas(Model model) {
         List<Nota> todasLasNotas = notaRepository.findAll();
-        long totalDocentes = docenteRepository.count();
-        long totalAlumnos = alumnoRepository.count();
+        List<Curso> todosLosCursos = cursoRepository.findAll();
+        List<Alumno> todosLosAlumnos = alumnoRepository.findAll();
 
-        double sumaNotas = todasLasNotas.stream().mapToDouble(n -> n.getValor().doubleValue()).sum();
-        double promedioGeneral = todasLasNotas.isEmpty() ? 0 : sumaNotas / todasLasNotas.size();
+        long totalNotasRegistradas = todasLasNotas.size();
+        BigDecimal promedioGeneral = BigDecimal.ZERO;
 
-        int aprobados = 0;
-        int desaprobados = 0;
-        int cursosConEvaluaciones = 0;
-
-        for (Curso c : cursos) {
-            if (c.getEvaluaciones() != null && !c.getEvaluaciones().isEmpty())
-                cursosConEvaluaciones++;
+        if (totalNotasRegistradas > 0) {
+            BigDecimal sumaTotal = BigDecimal.ZERO;
+            for (Nota n : todasLasNotas) {
+                if (n.getValor() != null) {
+                    sumaTotal = sumaTotal.add(n.getValor());
+                }
+            }
+            promedioGeneral = sumaTotal.divide(new BigDecimal(totalNotasRegistradas), 2, RoundingMode.HALF_UP);
         }
 
-        model.addAttribute("promedioGeneral", String.format("%.2f", promedioGeneral));
-        model.addAttribute("totalNotas", todasLasNotas.size());
-        model.addAttribute("totalCursos", cursos.size());
-        model.addAttribute("cursosConEvaluaciones", cursosConEvaluaciones);
-        model.addAttribute("cursosSinEvaluaciones", cursos.size() - cursosConEvaluaciones);
+        int cursosEvaluados = 0;
+        int cursosSinEvaluaciones = 0;
+
+        int alumnosAprobados = 0;
+        int alumnosDesaprobados = 0;
+
+        List<FilaIndicadorCursoDTO> tablaCursos = new ArrayList<>();
+
+        for (Curso curso : todosLosCursos) {
+            List<Evaluacion> evaluacionesActivas = new ArrayList<>();
+            if (curso.getEvaluaciones() != null) {
+                evaluacionesActivas = curso.getEvaluaciones().stream()
+                        .filter(e -> e != null && e.isEstado())
+                        .collect(Collectors.toList());
+                if (!evaluacionesActivas.isEmpty()) {
+                    cursosEvaluados++;
+                } else {
+                    cursosSinEvaluaciones++;
+                }
+            } else {
+                cursosSinEvaluaciones++;
+            }
+
+            List<Alumno> alumnosSeccion = alumnoRepository.findBySeccion(curso.getSeccion());
+            int totalAlumnosSeccion = alumnosSeccion.size();
+            int aprobadosCurso = 0;
+            int desaprobadosCurso = 0;
+
+            for (Alumno alumno : alumnosSeccion) {
+                BigDecimal sumaPonderada = BigDecimal.ZERO;
+                BigDecimal sumaPesos = BigDecimal.ZERO;
+
+                for (Evaluacion ev : evaluacionesActivas) {
+                    BigDecimal valorNota = null;
+                    if (alumno.getNotas() != null) {
+                        for (Nota n : alumno.getNotas()) {
+                            if (n.getEvaluacion().getIdEvaluacion().equals(ev.getIdEvaluacion())) {
+                                valorNota = n.getValor();
+                                break;
+                            }
+                        }
+                    }
+                    if (valorNota != null && ev.getPesoPorcentual() != null) {
+                        sumaPonderada = sumaPonderada.add(valorNota.multiply(ev.getPesoPorcentual()));
+                        sumaPesos = sumaPesos.add(ev.getPesoPorcentual());
+                    }
+                }
+
+                BigDecimal promedioFinal = null;
+                if (sumaPesos.compareTo(BigDecimal.ZERO) > 0) {
+                    promedioFinal = sumaPonderada.divide(sumaPesos, 2, RoundingMode.HALF_UP);
+                }
+
+                if (promedioFinal != null) {
+                    if (promedioFinal.compareTo(new BigDecimal("11")) >= 0) {
+                        aprobadosCurso++;
+                        alumnosAprobados++;
+                    } else {
+                        desaprobadosCurso++;
+                        alumnosDesaprobados++;
+                    }
+                }
+            }
+
+            BigDecimal porcentajeAprobados = BigDecimal.ZERO;
+            String badgeClase = "bg-success";
+
+            if (totalAlumnosSeccion > 0) {
+                double porcentaje = ((double) aprobadosCurso / totalAlumnosSeccion) * 100;
+                porcentajeAprobados = new BigDecimal(porcentaje).setScale(2, RoundingMode.HALF_UP);
+
+                if (porcentajeAprobados.compareTo(new BigDecimal("80")) >= 0) {
+                    badgeClase = "bg-success";
+                } else if (porcentajeAprobados.compareTo(new BigDecimal("60")) >= 0) {
+                    badgeClase = "bg-warning text-dark";
+                } else {
+                    badgeClase = "bg-danger";
+                }
+            }
+
+            tablaCursos.add(new FilaIndicadorCursoDTO(
+                    curso.getNombreCurso(),
+                    curso.getSeccion().toUpperCase(),
+                    totalAlumnosSeccion, aprobadosCurso, desaprobadosCurso, porcentajeAprobados, badgeClase));
+        }
+
+        int totalEvaluados = alumnosAprobados + alumnosDesaprobados;
+        BigDecimal porcentajeAprobacion = BigDecimal.ZERO;
+        BigDecimal porcentajeDesaprobacion = BigDecimal.ZERO;
+
+        if (totalEvaluados > 0) {
+            porcentajeAprobacion = new BigDecimal((double) alumnosAprobados / totalEvaluados * 100).setScale(2,
+                    RoundingMode.HALF_UP);
+            porcentajeDesaprobacion = new BigDecimal((double) alumnosDesaprobados / totalEvaluados * 100).setScale(2,
+                    RoundingMode.HALF_UP);
+        }
+
+        long totalDocentes = docenteRepository.count();
+        long totalAlumnos = todosLosAlumnos.size();
+        long totalCursosRegistrados = todosLosCursos.size();
+
+        model.addAttribute("promedioGeneral", promedioGeneral);
+        model.addAttribute("cursosEvaluados", cursosEvaluados);
+        model.addAttribute("totalNotasRegistradas", totalNotasRegistradas);
+
+        model.addAttribute("alumnosAprobados", alumnosAprobados);
+        model.addAttribute("alumnosDesaprobados", alumnosDesaprobados);
+        model.addAttribute("porcentajeAprobacion", porcentajeAprobacion);
+        model.addAttribute("porcentajeDesaprobacion", porcentajeDesaprobacion);
+
+        model.addAttribute("totalCursosRegistrados", totalCursosRegistrados);
+        model.addAttribute("cursosSinEvaluaciones", cursosSinEvaluaciones);
         model.addAttribute("totalDocentes", totalDocentes);
         model.addAttribute("totalAlumnos", totalAlumnos);
+        model.addAttribute("tablaCursos", tablaCursos);
 
         return "admin/estadisticas-academicas";
     }

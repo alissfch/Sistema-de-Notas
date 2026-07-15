@@ -33,6 +33,8 @@ import com.integrador.SistemaDeNotas.repositorio.EvaluacionRepository;
 import com.integrador.SistemaDeNotas.repositorio.NotaRepository;
 import com.integrador.SistemaDeNotas.repositorio.UsuarioRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Controller
 public class DocenteControlador {
 
@@ -50,6 +52,8 @@ public class DocenteControlador {
     private AsistenciaRepository asistenciaRepository;
     @Autowired
     private EncuestaDocenteRepository encuestaDocenteRepository;
+    @Autowired
+    private com.integrador.SistemaDeNotas.servicio.PdfReporteServicio pdfReporteServicio;
 
     @GetMapping("/docente/panel")
     public String mostrarPanelDocente(Model model, Principal principal) {
@@ -247,7 +251,9 @@ public class DocenteControlador {
     }
 
     @GetMapping("/docente/reportes/notas")
-    public String reporteNotas(@RequestParam(required = false) Integer cursoId, Model model, Principal principal) {
+    public String reporteNotas(@RequestParam(required = false) Integer cursoId,
+            @RequestParam(required = false) String formato,
+            Model model, Principal principal, HttpServletResponse response) {
         Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
         Docente miDocente = usuario.getDocente();
 
@@ -321,6 +327,15 @@ public class DocenteControlador {
             }
         }
 
+        if ("pdf".equalsIgnoreCase(formato)) {
+            try {
+                pdfReporteServicio.exportarReporteNotas(response, cursoSeleccionado, evaluacionesActivas, filas);
+                return null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         model.addAttribute("misCursos", misCursos);
         model.addAttribute("cursoSeleccionado", cursoSeleccionado);
         model.addAttribute("evaluacionesActivas", evaluacionesActivas);
@@ -335,7 +350,8 @@ public class DocenteControlador {
             @RequestParam(required = false) Integer cursoId,
             @RequestParam(required = false) String fechaInicio,
             @RequestParam(required = false) String fechaFin,
-            Model model, Principal principal) {
+            @RequestParam(required = false) String formato,
+            Model model, Principal principal, HttpServletResponse response) {
 
         Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
         Docente miDocente = usuario.getDocente();
@@ -419,6 +435,15 @@ public class DocenteControlador {
 
                 filas.add(new FilaReporteAsistenciaDTO(alumno, asistio, tardanza, falta, justificada, total, porcentaje,
                         estado));
+            }
+        }
+
+        if ("pdf".equalsIgnoreCase(formato)) {
+            try {
+                pdfReporteServicio.exportarReporteAsistencia(response, cursoSeleccionado, fechaInicio, fechaFin, filas);
+                return null;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
