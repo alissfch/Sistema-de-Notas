@@ -20,6 +20,8 @@ import com.integrador.SistemaDeNotas.modelo.entidades.Usuario;
 import com.integrador.SistemaDeNotas.repositorio.CursoRepository;
 import com.integrador.SistemaDeNotas.repositorio.UsuarioRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Controller
 public class AlumnoControlador {
 
@@ -27,10 +29,11 @@ public class AlumnoControlador {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private CursoRepository cursoRepository;
+    @Autowired
+    private com.integrador.SistemaDeNotas.servicio.PdfReporteServicio pdfReporteServicio;
 
     @GetMapping("/alumno/dashboard")
     public String mostrarDashboard(Model model, Principal principal) {
-        // 1. Obtener alumno autenticado (Seguridad)
         Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
         Alumno miAlumno = usuario.getAlumno();
 
@@ -38,17 +41,44 @@ public class AlumnoControlador {
             return "redirect:/login?error=No se encontró el perfil de alumno.";
         }
 
-        // 2. Obtener los cursos de su sección
         List<Curso> misCursos = cursoRepository.findBySeccion(miAlumno.getSeccion());
-        List<FilaCursoAlumnoDTO> filasCursos = new ArrayList<>();
+        DashboardDatosDTO datos = calcularDatosDashboard(miAlumno, misCursos);
 
-        // Variables para las tarjetas de indicadores generales
+        model.addAttribute("filasCursos", datos.filasCursos);
+        model.addAttribute("promedioGeneral", datos.promedioGeneral);
+        model.addAttribute("notaMaxGlobal", datos.notaMaxGlobal);
+        model.addAttribute("notaMinGlobal", datos.notaMinGlobal);
+        model.addAttribute("totalCursos", datos.totalCursos);
+        model.addAttribute("nombreAlumno", usuario.getNombre() + " " + usuario.getApellido());
+        model.addAttribute("seccionAlumno", miAlumno.getSeccion());
+
+        return "alumno/dashboard";
+    }
+
+    @GetMapping("/alumno/reporte/pdf")
+    public void descargarReportePdf(Principal principal, HttpServletResponse response) {
+        Usuario usuario = usuarioRepository.findByCorreo(principal.getName()).get();
+        Alumno miAlumno = usuario.getAlumno();
+
+        if (miAlumno != null) {
+            List<Curso> misCursos = cursoRepository.findBySeccion(miAlumno.getSeccion());
+            DashboardDatosDTO datos = calcularDatosDashboard(miAlumno, misCursos);
+            try {
+                pdfReporteServicio.exportarReporteNotasAlumno(response, miAlumno, datos.filasCursos,
+                        datos.promedioGeneral, datos.notaMaxGlobal, datos.notaMinGlobal, datos.totalCursos);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private DashboardDatosDTO calcularDatosDashboard(Alumno miAlumno, List<Curso> misCursos) {
+        List<FilaCursoAlumnoDTO> filasCursos = new ArrayList<>();
         BigDecimal sumaPromediosGlobal = BigDecimal.ZERO;
         int cursosConPromedio = 0;
         BigDecimal notaMaxGlobal = null;
         BigDecimal notaMinGlobal = null;
 
-        // 3. Lógica idéntica al Docente para promedios ponderados
         for (Curso curso : misCursos) {
             List<Evaluacion> evaluacionesActivas = new ArrayList<>();
             if (curso.getEvaluaciones() != null) {
@@ -74,7 +104,6 @@ public class AlumnoControlador {
                 }
 
                 if (valorNota != null) {
-                    // Calculamos máximo y mínimo del curso
                     if (maxCurso == null || valorNota.compareTo(maxCurso) > 0)
                         maxCurso = valorNota;
                     if (minCurso == null || valorNota.compareTo(minCurso) < 0)
@@ -105,7 +134,6 @@ public class AlumnoControlador {
                 }
             }
 
-            // Calculamos máximo y mínimo global del alumno
             if (maxCurso != null && (notaMaxGlobal == null || maxCurso.compareTo(notaMaxGlobal) > 0))
                 notaMaxGlobal = maxCurso;
             if (minCurso != null && (notaMinGlobal == null || minCurso.compareTo(notaMinGlobal) < 0))
@@ -120,19 +148,26 @@ public class AlumnoControlador {
             promedioGeneral = sumaPromediosGlobal.divide(new BigDecimal(cursosConPromedio), 2, RoundingMode.HALF_UP);
         }
 
-        // 4. Enviar a la vista
-        model.addAttribute("filasCursos", filasCursos);
-        model.addAttribute("promedioGeneral", promedioGeneral);
-        model.addAttribute("notaMaxGlobal", notaMaxGlobal);
-        model.addAttribute("notaMinGlobal", notaMinGlobal);
-        model.addAttribute("totalCursos", misCursos.size());
-        model.addAttribute("nombreAlumno", usuario.getNombre() + " " + usuario.getApellido());
-        model.addAttribute("seccionAlumno", miAlumno.getSeccion());
-
-        return "alumno/dashboard";
+        return new DashboardDatosDTO(filasCursos, promedioGeneral, notaMaxGlobal, notaMinGlobal, misCursos.size());
     }
 
-    // DTO Interno para enviar datos estructurados a la tabla
+    public static class DashboardDatosDTO {
+        public final List<FilaCursoAlumnoDTO> filasCursos;
+        public final BigDecimal promedioGeneral;
+        public final BigDecimal notaMaxGlobal;
+        public final BigDecimal notaMinGlobal;
+        public final int totalCursos;
+
+        public DashboardDatosDTO(List<FilaCursoAlumnoDTO> filasCursos, BigDecimal promedioGeneral,
+                BigDecimal notaMaxGlobal, BigDecimal notaMinGlobal, int totalCursos) {
+            this.filasCursos = filasCursos;
+            this.promedioGeneral = promedioGeneral;
+            this.notaMaxGlobal = notaMaxGlobal;
+            this.notaMinGlobal = notaMinGlobal;
+            this.totalCursos = totalCursos;
+        }
+    }
+
     public static class FilaCursoAlumnoDTO {
         private final String curso;
         private final BigDecimal promedio;
